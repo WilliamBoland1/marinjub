@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scroll · Driven</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+
+/* ─── reset ─────────────────────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+/* ─── tokens ─────────────────────────────────────────── */
+:root {
+  --bg:        #0b0b0b;
+  --surface:   #141414;
+  --line:      rgba(255,255,255,0.08);
+  --muted:     rgba(255,255,255,0.28);
+  --text:      #f0ede6;
+  --accent:    #c8f060;       /* electric lime */
+  --accent2:   #ff6b35;       /* burnt orange  */
+  --accent3:   #5bc8fa;       /* icy blue      */
+  --serif:     'Instrument Serif', Georgia, serif;
+  --mono:      'DM Mono', monospace;
+  --max:       780px;
+}
+
+/* ─── base ───────────────────────────────────────────── */
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-weight: 300;
+  font-size: 15px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* thin horizontal rule between sections */
+hr {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 0;
+}
+
+/* ─── layout helper ──────────────────────────────────── */
+.wrap {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ─── nav ────────────────────────────────────────────── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 2.5rem;
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(12px);
+  background: rgba(11,11,11,0.72);
+}
+.nav-logo {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  color: var(--text);
+  letter-spacing: .02em;
+}
+.nav-tag {
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ─── hero ───────────────────────────────────────────── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 8rem 2.5rem 5rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.hero-eyebrow {
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+
+  animation: fadeUp linear both;
+  animation-timeline: view();
+  animation-range: entry 25% entry 65%;
+}
+
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(3.5rem, 9vw, 7rem);
+  font-weight: 400;
+  line-height: 1.0;
+  letter-spacing: -.02em;
+  color: var(--text);
+  margin-bottom: 2rem;
+
+  animation: fadeUp linear both;
+  animation-timeline: view();
+  animation-range: entry 25% entry 65%;
+  animation-delay: 60ms;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-sub {
+  max-width: 480px;
+  color: var(--muted);
+  font-size: .9rem;
+  line-height: 1.8;
+  margin-bottom: 3rem;
+
+  animation: fadeUp linear both;
+  animation-timeline: view();
+  animation-range: entry 25% entry 65%;
+  animation-delay: 120ms;
+}
+
+.hero-scroll-hint {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+
+  animation: fadeUp linear both;
+  animation-timeline: view();
+  animation-range: entry 25% entry 65%;
+  animation-delay: 180ms;
+}
+.hero-scroll-hint::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: var(--muted);
+}
+
+/* ─── section shell ──────────────────────────────────── */
+.section {
+  padding: 7rem 2.5rem;
+  max-width: var(--max);
+  margin: 0 auto;
+}
+
+.section-num {
+  font-size: 11px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.section-num::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+
+.section h2 {
+  font-family: var(--serif);
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  font-weight: 400;
+  line-height: 1.1;
+  letter-spacing: -.01em;
+  margin-bottom: 1.25rem;
+}
+
+.section p {
+  color: var(--muted);
+  max-width: 520px;
+  font-size: .88rem;
+  line-height: 1.85;
+}
+
+/* slide helpers */
+.slide-left {
+  animation: slideLeft linear both;
+  animation-timeline: view();
+  animation-range: entry 25% entry 65%;
+}
+.slide-right {
+  animation: slideRight linear both;
+  animation-timeline: view();
+  animation-range: entry 25% entry 65%;
+}
+.fade-up {
+  animation: fadeUp linear both;
+  animation-timeline: view();
+  animation-range: entry 25% entry 65%;
+}
+
+/* ─── § 1 — slide-in split ───────────────────────────── */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 3rem;
+}
+.split-cell {
+  background: var(--surface);
+  padding: 2rem 1.5rem;
+}
+.split-cell .label {
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: .75rem;
+}
+.split-cell .val {
+  font-family: var(--serif);
+  font-size: 2.4rem;
+  line-height: 1;
+}
+.split-cell p {
+  font-size: .8rem;
+  color: var(--muted);
+  margin-top: .5rem;
+}
+
+/* ─── § 2 — scrubbed bars ────────────────────────────── */
+.bars { margin-top: 3rem; display: flex; flex-direction: column; gap: 2.2rem; }
+
+.bar-row {}
+.bar-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: .6rem;
+}
+.bar-name {
+  font-size: .82rem;
+  letter-spacing: .06em;
+}
+.bar-pct {
+  font-family: var(--serif);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.bar-track {
+  width: 100%;
+  height: 3px;
+  background: var(--line);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+/* Each fill animates scrubbed to scroll */
+.bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  transform-origin: left;
+  transform: scaleX(0);
+
+  animation: scaleBar linear both;
+  animation-timeline: view();
+  animation-range: entry 30% exit 85%;
+}
+
+/* thick accent bar variant */
+.bar-track.thick { height: 6px; }
+
+.bar-1 .bar-fill { background: var(--accent);  width: 92%; }
+.bar-2 .bar-fill { background: var(--accent2); width: 78%; animation-delay: 40ms; }
+.bar-3 .bar-fill { background: var(--accent3); width: 85%; animation-delay: 80ms; }
+.bar-4 .bar-fill { background: var(--muted);   width: 61%; animation-delay: 120ms; }
+
+.bar-pct-1 { color: var(--accent);  }
+.bar-pct-2 { color: var(--accent2); }
+.bar-pct-3 { color: var(--accent3); }
+.bar-pct-4 { color: var(--muted);   }
+
+/* ─── § 3 — staggered cards ─────────────────────────── */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 3rem;
+}
+.card {
+  background: var(--surface);
+  padding: 1.75rem 1.5rem;
+
+  animation: popIn linear both;
+  animation-timeline: view();
+  animation-range: entry 25% entry 65%;
+}
+.card:nth-child(2) { animation-delay: 70ms; }
+.card:nth-child(3) { animation-delay: 140ms; }
+
+.card-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-bottom: 1.25rem;
+}
+.card h3 {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 400;
+  margin-bottom: .5rem;
+}
+.card p {
+  font-size: .8rem;
+  color: var(--muted);
+  line-height: 1.75;
+}
+
+/* ─── § 4 — word reveal ─────────────────────────────── */
+.big-quote {
+  font-family: var(--serif);
+  font-size: clamp(1.8rem, 4.5vw, 3rem);
+  font-weight: 400;
+  line-height: 1.35;
+  margin-top: 3rem;
+}
+.reveal-word {
+  display: inline;
+  color: rgba(240,237,230,0.15);
+  animation: wordOn linear both;
+  animation-timeline: view();
+  animation-range: entry 25% entry 80%;
+}
+.reveal-word:nth-child(1)  { animation-delay: 0ms;   }
+.reveal-word:nth-child(2)  { animation-delay: 55ms;  }
+.reveal-word:nth-child(3)  { animation-delay: 110ms; }
+.reveal-word:nth-child(4)  { animation-delay: 165ms; }
+.reveal-word:nth-child(5)  { animation-delay: 220ms; }
+.reveal-word:nth-child(6)  { animation-delay: 275ms; }
+.reveal-word:nth-child(7)  { animation-delay: 330ms; }
+.reveal-word:nth-child(8)  { animation-delay: 385ms; }
+.reveal-word:nth-child(9)  { animation-delay: 440ms; }
+.reveal-word:nth-child(10) { animation-delay: 495ms; }
+.reveal-word:nth-child(11) { animation-delay: 550ms; }
+.reveal-word:nth-child(12) { animation-delay: 605ms; }
+.reveal-word:nth-child(13) { animation-delay: 660ms; }
+.reveal-word:nth-child(14) { animation-delay: 715ms; }
+.reveal-word:nth-child(15) { animation-delay: 770ms; }
+.reveal-word:nth-child(16) { animation-delay: 825ms; }
+
+/* ─── § 5 — spin / rotate entry ─────────────────────── */
+.emblem-row {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-top: 3rem;
+}
+.emblem {
+  width: 110px; height: 110px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  animation: spinIn linear both;
+  animation-timeline: view();
+  animation-range: entry 25% entry 65%;
+}
+.emblem:nth-child(2) { animation-delay: 80ms;  }
+.emblem:nth-child(3) { animation-delay: 160ms; }
+.emblem:nth-child(4) { animation-delay: 240ms; }
+
+.emblem-num {
+  font-family: var(--serif);
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.emblem-label {
+  font-size: 9px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ─── footer ─────────────────────────────────────────── */
+footer {
+  padding: 4rem 2.5rem;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.footer-brand {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+}
+.footer-note {
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ─── keyframes ──────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(48px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes slideLeft {
+  from { opacity: 0; transform: translateX(-56px); }
+  to   { opacity: 1; transform: translateX(0);     }
+}
+
+@keyframes slideRight {
+  from { opacity: 0; transform: translateX(56px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+@keyframes scaleBar {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.82) translateY(24px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0);    }
+}
+
+@keyframes spinIn {
+  from { opacity: 0; transform: rotate(-200deg) scale(0.4); }
+  to   { opacity: 1; transform: rotate(0deg)    scale(1);   }
+}
+
+@keyframes wordOn {
+  from { color: rgba(240,237,230,0.12); }
+  to   { color: rgba(240,237,230,1);    }
+}
+
+/* ─── scrollbar ──────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
+
+/* ─── fallback for browsers without animation-timeline ── */
+@supports not (animation-timeline: view()) {
+  .slide-left, .slide-right, .fade-up,
+  .hero-eyebrow, .hero h1, .hero-sub, .hero-scroll-hint,
+  .bar-fill, .card, .reveal-word, .emblem {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">Scroll · Driven</span>
+  <span class="nav-tag">CSS animation-timeline</span>
+</nav>
+
+<!-- ════════════════════════ HERO ════════════════════════ -->
+<section>
+  <div class="hero">
+    <div class="hero-eyebrow">Pure CSS · No JavaScript · animation-timeline: view()</div>
+    <h1>Motion that<br>lives in the<br><em>scroll.</em></h1>
+    <p class="hero-sub">
+      Every animation on this page is driven entirely by the browser's native
+      CSS scroll timeline API — no libraries, no listeners, no JavaScript.
+      Just scroll.
+    </p>
+    <div class="hero-scroll-hint">Scroll to explore</div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ════════════════════════ § 01 — SLIDE IN ════════════════════════ -->
+<div class="section">
+  <div class="section-num slide-left">01 — Slide in on entry</div>
+  <h2 class="slide-left" style="animation-delay:50ms">
+    Elements arrive<br>from either side.
+  </h2>
+  <p class="slide-left" style="animation-delay:100ms">
+    Using <code>translateX</code> over <code>animation-range: entry 0% entry 48%</code> —
+    the transition completes the moment the element is nearly half-visible.
+  </p>
+
+  <div class="split">
+    <div class="split-cell slide-left" style="animation-delay:160ms">
+      <div class="label">from the left</div>
+      <div class="val" style="color:var(--accent)">←</div>
+      <p>Travels in from the left edge of the viewport</p>
+    </div>
+    <div class="split-cell slide-right" style="animation-delay:160ms">
+      <div class="label">from the right</div>
+      <div class="val" style="color:var(--accent2)">→</div>
+      <p>Mirrors the same keyframe, opposite direction</p>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ════════════════════════ § 02 — SCRUBBED BARS ════════════════════════ -->
+<div class="section">
+  <div class="section-num slide-left">02 — Scrubbed to scroll position</div>
+  <h2 class="slide-left" style="animation-delay:50ms">
+    Bars that grow<br>as you descend.
+  </h2>
+  <p class="slide-left" style="animation-delay:100ms">
+    These are not triggered once and done — they are permanently coupled
+    to your scroll position via <code>animation-range: entry 15% exit 75%</code>.
+    Scroll back up and watch them shrink.
+  </p>
+
+  <div class="bars">
+    <div class="bar-row bar-1 fade-up" style="animation-delay:160ms">
+      <div class="bar-meta">
+        <span class="bar-name">CSS Mastery</span>
+        <span class="bar-pct bar-pct-1">92%</span>
+      </div>
+      <div class="bar-track thick">
+        <div class="bar-fill"></div>
+      </div>
+    </div>
+
+    <div class="bar-row bar-2 fade-up" style="animation-delay:200ms">
+      <div class="bar-meta">
+        <span class="bar-name">Motion Design</span>
+        <span class="bar-pct bar-pct-2">78%</span>
+      </div>
+      <div class="bar-track thick">
+        <div class="bar-fill"></div>
+      </div>
+    </div>
+
+    <div class="bar-row bar-3 fade-up" style="animation-delay:240ms">
+      <div class="bar-meta">
+        <span class="bar-name">Browser APIs</span>
+        <span class="bar-pct bar-pct-3">85%</span>
+      </div>
+      <div class="bar-track thick">
+        <div class="bar-fill"></div>
+      </div>
+    </div>
+
+    <div class="bar-row bar-4 fade-up" style="animation-delay:280ms">
+      <div class="bar-meta">
+        <span class="bar-name">Patience with IE</span>
+        <span class="bar-pct bar-pct-4">61%</span>
+      </div>
+      <div class="bar-track thick">
+        <div class="bar-fill"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ════════════════════════ § 03 — CARDS ════════════════════════ -->
+<div class="section">
+  <div class="section-num slide-left">03 — Staggered pop-in</div>
+  <h2 class="slide-left" style="animation-delay:50ms">
+    Each card arrives<br>a beat apart.
+  </h2>
+  <p class="slide-left" style="animation-delay:100ms">
+    Siblings share one <code>@keyframes popIn</code> but carry different
+    <code>animation-delay</code> values. The cascade costs zero extra code.
+  </p>
+
+  <div class="cards">
+    <div class="card">
+      <div class="card-dot" style="background:var(--accent)"></div>
+      <h3>Triggered</h3>
+      <p>Fires once as the element crosses into the viewport — clean, intentional.</p>
+    </div>
+    <div class="card">
+      <div class="card-dot" style="background:var(--accent2)"></div>
+      <h3>Scrubbed</h3>
+      <p>Locked to scroll position in real time — grow, shrink, rewind.</p>
+    </div>
+    <div class="card">
+      <div class="card-dot" style="background:var(--accent3)"></div>
+      <h3>Staggered</h3>
+      <p>Sequential delays make a single entrance feel choreographed.</p>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ════════════════════════ § 04 — WORD REVEAL ════════════════════════ -->
+<div class="section">
+  <div class="section-num slide-left">04 — Word-by-word reveal</div>
+  <h2 class="slide-left" style="animation-delay:50ms">
+    Reading speed<br>as animation.
+  </h2>
+  <p class="slide-left" style="animation-delay:100ms">
+    Each word is its own <code>&lt;span&gt;</code> with an independent
+    <code>animation-timeline: view()</code> and staggered delay.
+    The text illuminates as it enters.
+  </p>
+
+  <p class="big-quote">
+    <span class="reveal-word">The&nbsp;</span><span class="reveal-word">browser&nbsp;</span><span class="reveal-word">always&nbsp;</span><span class="reveal-word">knew&nbsp;</span><span class="reveal-word">how&nbsp;</span><span class="reveal-word">to&nbsp;</span><span class="reveal-word">do&nbsp;</span><span class="reveal-word">this.&nbsp;</span><span class="reveal-word">We&nbsp;</span><span class="reveal-word">just&nbsp;</span><span class="reveal-word">had&nbsp;</span><span class="reveal-word">to&nbsp;</span><span class="reveal-word">stop&nbsp;</span><span class="reveal-word">reaching&nbsp;</span><span class="reveal-word">for&nbsp;</span><span class="reveal-word">libraries.</span>
+  </p>
+</div>
+
+<hr>
+
+<!-- ════════════════════════ § 05 — SPIN ════════════════════════ -->
+<div class="section">
+  <div class="section-num slide-left">05 — Rotate on entry</div>
+  <h2 class="slide-left" style="animation-delay:50ms">
+    A full rotation<br>as a hello.
+  </h2>
+  <p class="slide-left" style="animation-delay:100ms">
+    Combining <code>rotate(-200deg)</code> and <code>scale(0.4)</code> in
+    one keyframe. Works especially well for badges, logos, or counters.
+  </p>
+
+  <div class="emblem-row">
+    <div class="emblem">
+      <span class="emblem-num" style="color:var(--accent)">01</span>
+      <span class="emblem-label">Trigger</span>
+    </div>
+    <div class="emblem">
+      <span class="emblem-num" style="color:var(--accent2)">02</span>
+      <span class="emblem-label">Scrub</span>
+    </div>
+    <div class="emblem">
+      <span class="emblem-num" style="color:var(--accent3)">03</span>
+      <span class="emblem-label">Stagger</span>
+    </div>
+    <div class="emblem">
+      <span class="emblem-num" style="color:var(--muted)">04</span>
+      <span class="emblem-label">Rotate</span>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- FOOTER -->
+<footer>
+  <span class="footer-brand">Scroll · Driven</span>
+  <span class="footer-note">CSS animation-timeline · No JS required</span>
+</footer>
+
+</body>
+</html>
