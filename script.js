@@ -181,3 +181,7 @@
     },
   });
 })();
+
+console.log("hero:", document.querySelector("#hero"));
+console.log("ship:", document.querySelector("#ship"));
+console.log("content:", document.querySelector("#content"));
