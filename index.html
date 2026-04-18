@@ -4,12 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meridian Line — Trans-Oceanic Freight</title>
-  <meta name="description" content="A demonstration of scroll-linked animation: a container ship viewed from above, sailing up and out of frame as the viewer descends into deep water." />
+  <meta name="description" content="A container ship sails up from the horizon, and the world of Meridian Line opens in its wake." />
 
   <!-- Tailwind via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Distinctive font pairing: serif display + mono utility -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,700;9..144,900&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -18,11 +17,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
-  <!--
-    ========================================================================
-    TAILWIND CONFIG — custom maritime palette tuned to the reference photo
-    ========================================================================
-  -->
   <script>
     tailwind.config = {
       theme: {
@@ -32,11 +26,11 @@
             mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
           },
           colors: {
-            shoal:    '#1e4a6e', // sunlit shallow
-            openSea:  '#123558', // open water — matches reference photo
-            deep:     '#0a2340', // voyage blue
-            abyss:    '#071829', // deep-water content theme
-            trench:   '#030c16', // near-black punctuation
+            shoal:    '#1e4a6e',
+            openSea:  '#123558',
+            deep:     '#0a2340',
+            abyss:    '#071829',
+            trench:   '#030c16',
             bone:     '#f4ebd9',
             rust:     '#c96f4a',
             brass:    '#d4a574',
@@ -49,7 +43,6 @@
 
   <style>
     :root {
-      --c-shoal:   #1e4a6e;
       --c-openSea: #123558;
       --c-deep:    #0a2340;
       --c-abyss:   #071829;
@@ -68,18 +61,17 @@
     }
 
     /* ----------------------------------------------------------------------
-       Hero background — open ocean viewed from above. No sky, no horizon.
-       A soft off-centre light-ellipse mimics the sun-glint on water seen
-       in the reference photo; a darker vignette at the top-right adds depth.
+       Stage — the single pinned section. The ship sails up through it and
+       the destination content is revealed in its wake.
     ---------------------------------------------------------------------- */
-    .hero-bg {
+    .stage-bg {
       background:
         radial-gradient(ellipse 80% 60% at 20% 85%, rgba(70,120,160,0.28) 0%, transparent 55%),
         radial-gradient(ellipse 60% 50% at 85% 15%, rgba(5,15,28,0.35) 0%, transparent 60%),
         linear-gradient(170deg, var(--c-openSea) 0%, var(--c-deep) 60%, var(--c-abyss) 100%);
     }
 
-    /* Water surface texture — SVG turbulence noise, kept subtle */
+    /* Water texture layer — SVG turbulence noise for surface detail */
     .water-texture {
       position: absolute; inset: 0;
       pointer-events: none;
@@ -90,7 +82,6 @@
       background-size: 800px 800px;
     }
 
-    /* Faint vertical current streaks, aligned with ship's heading */
     .water-streaks {
       position: absolute; inset: 0;
       pointer-events: none;
@@ -98,10 +89,9 @@
       background-image:
         url("data:image/svg+xml;utf8,<svg viewBox='0 0 600 800' xmlns='http://www.w3.org/2000/svg'><g stroke='white' stroke-opacity='0.15' fill='none' stroke-width='0.6'><path d='M100 0 Q 110 400 95 800'/><path d='M250 0 Q 240 400 255 800'/><path d='M380 0 Q 390 400 375 800'/><path d='M510 0 Q 500 400 515 800'/></g></svg>");
       background-size: 100% 100%;
-      background-repeat: no-repeat;
     }
 
-    /* Film grain overlay for printed-paper feel */
+    /* Film grain */
     .grain::after {
       content: '';
       position: fixed; inset: 0;
@@ -111,38 +101,63 @@
     }
 
     /* ----------------------------------------------------------------------
-       Ship wrapper
-       ------------
-       Top-down SVG is tall (600 × 240). The ship is oriented with STERN
-       at the top of the SVG and BOW at the bottom (so wake trails UP off
-       the stern, mirroring user's "stern pointing upwards" request).
+       Ship
+       ----
+       SVG is tall (240 × 600). Orientation: BOW at TOP of SVG (y≈0),
+       STERN at BOTTOM (y≈600). Wake fans downward off the stern.
+       Wrapper starts with its top edge near the bottom of the viewport
+       so only the BOW + foredeck is visible on load.
 
-       `bottom: -75vh` on the wrapper pushes most of the SVG below the
-       fold, so at rest only the ship's BOW and forward deck are visible
-       peeking into the bottom of the viewport — exactly what was asked.
-
-       GSAP then translates the wrapper upward, revealing more of the
-       ship's length (containers → bridge → stern → wake), before it
-       exits the top of the viewport.
+       If you want to swap in a PNG later: replace the <svg> inside
+       .ship-wrap with an <img> of equal aspect ratio (roughly 1:2.5
+       tall). The wrapper + GSAP logic stays identical.
     ---------------------------------------------------------------------- */
     .ship-wrap {
       position: absolute;
       left: 50%;
-      bottom: -75vh;
+      /* Place the wrapper so only the BOW (top of SVG) pokes into the
+         viewport from below. The SVG is tall, so the rest of the hull
+         sits below the fold at rest. */
+      top: calc(100vh - 180px);
       transform: translateX(-50%);
-      width: min(380px, 52vw);
+      width: min(340px, 50vw);
       will-change: transform;
-      filter: drop-shadow(0 30px 45px rgba(3,12,22,0.7));
+      filter: drop-shadow(0 -20px 40px rgba(3,12,22,0.6));
+      z-index: 15;
     }
 
-    /* Gentle drift while the ship sails — compounds with GSAP scroll y */
+    /* Subtle heading-drift while sailing */
     @keyframes drift {
-      0%,100% { transform: translateX(-50%) rotate(-0.25deg); }
-      50%     { transform: translateX(-52%) rotate(0.25deg); }
+      0%,100% { transform: translateX(-50%) rotate(-0.3deg); }
+      50%     { transform: translateX(-52%) rotate(0.3deg); }
     }
     .ship-wrap { animation: drift 6s ease-in-out infinite; }
 
-    /* Ticker marquee */
+    /* ----------------------------------------------------------------------
+       Wake trail — a gradient strip that paints down the screen behind
+       the ship as it travels up. This is what the content reveals through.
+    ---------------------------------------------------------------------- */
+    .wake-trail {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      width: min(340px, 50vw);
+      height: 0;  /* grows via GSAP */
+      background:
+        linear-gradient(180deg,
+          rgba(244,235,217,0.0) 0%,
+          rgba(244,235,217,0.08) 12%,
+          rgba(244,235,217,0.15) 35%,
+          rgba(244,235,217,0.08) 70%,
+          rgba(244,235,217,0.0) 100%);
+      pointer-events: none;
+      z-index: 5;
+      mix-blend-mode: screen;
+      filter: blur(1px);
+    }
+
+    /* Ticker */
     @keyframes ticker {
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
@@ -199,17 +214,24 @@
       text-transform: uppercase; color: var(--c-brass);
     }
 
-    .vignette {
-      background:
-        radial-gradient(ellipse at 50% 0%, rgba(10,35,64,0.45) 0%, transparent 55%),
-        var(--c-abyss);
-    }
-
     @keyframes cueUp {
       0%,100% { transform: translateY(0); opacity: 0.6; }
       50%     { transform: translateY(-6px); opacity: 1; }
     }
     .scroll-cue { animation: cueUp 2s ease-in-out infinite; }
+
+    /* Destination content — starts invisible, revealed by GSAP */
+    .destination {
+      position: absolute;
+      inset: 0;
+      z-index: 10;
+      opacity: 0;
+      pointer-events: none;
+      padding-top: 10vh;
+    }
+    .destination.is-revealed {
+      pointer-events: auto;
+    }
 
     @media (prefers-reduced-motion: reduce) {
       .ship-wrap, .ticker-track, .scroll-cue { animation: none; }
@@ -220,21 +242,28 @@
 
   <!--
     ========================================================================
-    HERO — THE VOYAGE (BIRD'S-EYE VIEW)
-    The viewer looks straight down at the ocean surface. A container ship
-    is sailing across the frame with its BOW visible at the bottom of the
-    viewport; as the user scrolls, the ship travels upward on screen,
-    revealing its full length before exiting the top.
+    THE STAGE — single pinned section containing ocean, ship, and destination
     ========================================================================
+    Layer stack (bottom to top by z-index):
+      • .stage-bg      : water gradient
+      • .water-texture : noise overlay
+      • .water-streaks : vertical current streaks
+      • .destination   : the actual website content (fades in during scroll)
+      • .wake-trail    : soft foam trail, paints behind the ship
+      • .ship-wrap     : the ship itself
+      • top chrome     : ticker, masthead, scroll cue
   -->
-  <section id="hero" class="relative w-full h-screen overflow-hidden hero-bg">
+  <section id="stage" class="relative w-full h-screen overflow-hidden stage-bg">
 
-    <!-- Water surface texture layers -->
+    <!-- Water surface layers -->
     <div class="water-texture"></div>
     <div class="water-streaks"></div>
 
-    <!-- Top ticker: ship-log style dispatches -->
-    <div class="absolute top-0 left-0 right-0 z-20 border-b border-white/10 bg-black/20 backdrop-blur-sm overflow-hidden">
+    <!-- Wake trail that follows the ship up the screen -->
+    <div class="wake-trail" id="wake"></div>
+
+    <!-- Top ticker -->
+    <div class="absolute top-0 left-0 right-0 z-30 border-b border-white/10 bg-black/20 backdrop-blur-sm overflow-hidden">
       <div class="py-2.5 overflow-hidden">
         <div class="ticker-track font-mono text-[0.7rem] tracking-[0.25em] uppercase text-bone/60">
           <span>◆ 47°36'N 008°32'W &nbsp;·&nbsp; MV Meridian en route Rotterdam → Singapore</span>
@@ -250,7 +279,7 @@
     </div>
 
     <!-- Masthead -->
-    <header class="absolute top-14 left-0 right-0 z-20 px-6 md:px-12">
+    <header class="absolute top-14 left-0 right-0 z-30 px-6 md:px-12">
       <div class="flex items-start justify-between">
         <div>
           <div class="chapter-tag text-bone/60">Est. MCMXCVII</div>
@@ -267,8 +296,8 @@
       </div>
     </header>
 
-    <!-- Headline — anchored top-left, negative space on the right where the ship swims -->
-    <div class="hero-headline absolute top-[26%] left-0 right-0 z-10 px-6 md:px-12">
+    <!-- Opening headline — anchored upper-left, fades as ship passes -->
+    <div class="hero-headline absolute top-[28%] left-0 right-0 z-20 px-6 md:px-12">
       <div class="max-w-3xl">
         <div class="chapter-tag text-brass mb-4">Chapter I · The Crossing</div>
         <h2 class="font-display font-light text-bone tracking-mega leading-[0.9]
@@ -283,126 +312,94 @@
     </div>
 
     <!--
-      SHIP — TOP-DOWN SVG
-      ===================
-      Orientation inside the viewBox (240 × 600):
-        • STERN at y ≈ 0    (top of SVG)        → superstructure, bridge, funnel
-        • MIDSHIPS y 200-445                    → container bays, colourful
-        • FORECASTLE y 448-500                  → forward deck + hatches
-        • BOW at y ≈ 585    (bottom of SVG)     → pointed, white foam wake
-
-      Combined with the wrapper's `bottom: -75vh`, only the BOW portion
-      (bottom of the SVG) is on-screen at rest. Scrolling translates the
-      wrapper upward — revealing forecastle → containers → bridge → stern
-      → leaving only wake → gone.
+      SHIP — BIRD'S-EYE VIEW, BOW POINTING UP
+      =======================================
+      BOW at TOP of SVG (y≈0), STERN at BOTTOM (y≈585).
+      Wake (churn + prop wash) fans OFF THE STERN = below y=585.
+      The ship appears to sail UP the screen; wake trails DOWN behind it.
     -->
     <div class="ship-wrap" id="ship">
-      <svg viewBox="0 0 240 600" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto" aria-label="Container ship, bird's-eye view">
+      <svg viewBox="0 0 240 600" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto" aria-label="Container ship, bird's-eye view, sailing upward">
 
         <!-- ============================================================
-             STERN WAKE — churn + fanning trails OFF THE TOP of the SVG.
-             Ship travels upward on-screen; wake is left behind, i.e.
-             "upward" from the stern's point of view relative to motion.
-             Since stern is at the top of our SVG, wake graphics extend
-             upward from y=80 to y=0.
+             BOW WAVE — white "V" of foam spreading forward at the bow,
+             which is now at the TOP of the SVG. Foam fans outward
+             (and forward = upward off the bow tip).
         ============================================================ -->
         <g opacity="0.9">
-          <!-- Outer diverging trails -->
-          <path d="M 80 80 Q 60 40 40 0 L 30 0 Q 45 40 70 95 Z" fill="#ffffff" opacity="0.22"/>
-          <path d="M 160 80 Q 180 40 200 0 L 210 0 Q 195 40 170 95 Z" fill="#ffffff" opacity="0.22"/>
-          <!-- Inner tighter trails -->
-          <path d="M 95 60 Q 85 30 75 0 L 67 0 Q 77 30 90 70 Z" fill="#ffffff" opacity="0.32"/>
-          <path d="M 145 60 Q 155 30 165 0 L 173 0 Q 163 30 150 70 Z" fill="#ffffff" opacity="0.32"/>
-          <!-- Churn foam directly behind the transom -->
-          <ellipse cx="120" cy="78" rx="55" ry="18" fill="#ffffff" opacity="0.42"/>
-          <ellipse cx="120" cy="72" rx="42" ry="10" fill="#ffffff" opacity="0.55"/>
-          <!-- Prop wash texture dots -->
-          <g fill="#ffffff" opacity="0.4">
-            <circle cx="95"  cy="55" r="1.2"/>
-            <circle cx="110" cy="42" r="1"/>
-            <circle cx="130" cy="38" r="1"/>
-            <circle cx="145" cy="52" r="1.2"/>
-            <circle cx="120" cy="30" r="1.4"/>
-            <circle cx="108" cy="25" r="0.8"/>
-            <circle cx="135" cy="22" r="0.8"/>
+          <path d="M 70 45 Q 55 20 40 0 L 52 0 Q 67 18 82 35 Z" fill="#ffffff" opacity="0.35"/>
+          <path d="M 170 45 Q 185 20 200 0 L 188 0 Q 173 18 158 35 Z" fill="#ffffff" opacity="0.35"/>
+          <path d="M 82 30 Q 72 15 62 0 L 72 0 Q 80 12 90 22 Z" fill="#ffffff" opacity="0.5"/>
+          <path d="M 158 30 Q 168 15 178 0 L 168 0 Q 160 12 150 22 Z" fill="#ffffff" opacity="0.5"/>
+          <!-- Foam cushion riding on the bow -->
+          <ellipse cx="120" cy="12" rx="35" ry="6" fill="#ffffff" opacity="0.55"/>
+          <!-- Spray dots -->
+          <g fill="#ffffff" opacity="0.55">
+            <circle cx="95"  cy="5"  r="1"/>
+            <circle cx="108" cy="2"  r="0.8"/>
+            <circle cx="135" cy="3"  r="1"/>
+            <circle cx="148" cy="6"  r="0.8"/>
           </g>
         </g>
 
+        <!-- Jackstaff at the bow tip -->
+        <rect x="118" y="18" width="4" height="5" fill="#c96f4a"/>
+
         <!-- ============================================================
-             HULL — long narrow shape: flat stern (top), pointed bow (bottom)
+             HULL — pointed bow at TOP, flat stern at BOTTOM
         ============================================================ -->
-        <!-- Hull shadow in water, offset down-right -->
-        <path d="M 78 86
-                 L 162 86
-                 L 170 115
-                 L 170 480
-                 Q 170 560 120 585
-                 Q 70 560 70 480
-                 L 70 115 Z"
+        <!-- Hull shadow offset -->
+        <path d="M 78 515
+                 L 162 515
+                 L 170 485
+                 L 170 120
+                 Q 170 40 120 15
+                 Q 70 40 70 120
+                 L 70 485 Z"
               fill="#050d18" opacity="0.55" transform="translate(3 5)"/>
 
-        <!-- Main hull body -->
-        <path d="M 78 86
-                 L 162 86
-                 L 170 115
-                 L 170 480
-                 Q 170 560 120 585
-                 Q 70 560 70 480
-                 L 70 115 Z"
+        <!-- Main hull -->
+        <path d="M 78 515
+                 L 162 515
+                 L 170 485
+                 L 170 120
+                 Q 170 40 120 15
+                 Q 70 40 70 120
+                 L 70 485 Z"
               fill="#1a1f2e"/>
 
         <!-- Stern transom highlight -->
-        <rect x="78" y="86" width="84" height="4" fill="#2a3142"/>
+        <rect x="78" y="511" width="84" height="4" fill="#2a3142"/>
 
-        <!-- Rust waterline outline following the hull -->
-        <path d="M 78 86
-                 L 162 86
-                 L 170 115
-                 L 170 480
-                 Q 170 560 120 585
-                 Q 70 560 70 480
-                 L 70 115 Z"
+        <!-- Rust waterline outline -->
+        <path d="M 78 515
+                 L 162 515
+                 L 170 485
+                 L 170 120
+                 Q 170 40 120 15
+                 Q 70 40 70 120
+                 L 70 485 Z"
               fill="none" stroke="#c96f4a" stroke-width="1.8"/>
 
         <!-- ============================================================
-             AFT SUPERSTRUCTURE — bridge castle + funnel at the top end
+             FORECASTLE — forward deck just aft of the bow tip
         ============================================================ -->
-        <!-- Bridge castle -->
-        <rect x="88" y="100" width="64" height="54" fill="#e8e4db"/>
-        <rect x="88" y="100" width="64" height="5" fill="#c96f4a"/>
-        <!-- Bridge wings extending over the hull sides -->
-        <rect x="72" y="114" width="16" height="14" fill="#e8e4db"/>
-        <rect x="152" y="114" width="16" height="14" fill="#e8e4db"/>
-        <!-- Bridge windows (row of small rectangles, forward-facing = lower) -->
-        <g fill="#0a2340">
-          <rect x="94"  y="144" width="8" height="5"/>
-          <rect x="104" y="144" width="8" height="5"/>
-          <rect x="114" y="144" width="8" height="5"/>
-          <rect x="124" y="144" width="8" height="5"/>
-          <rect x="134" y="144" width="8" height="5"/>
-          <rect x="144" y="144" width="4" height="5"/>
-        </g>
-        <!-- Cross-deck walkways -->
-        <line x1="88" y1="130" x2="152" y2="130" stroke="#0f1420" stroke-width="0.6"/>
+        <rect x="75" y="102" width="90" height="4" fill="#0f1420"/>
+        <rect x="82" y="108" width="76" height="42" fill="#2a3142"/>
+        <circle cx="100" cy="128" r="3" fill="#c96f4a"/>
+        <circle cx="140" cy="128" r="3" fill="#c96f4a"/>
+        <rect x="105" y="114" width="30" height="26" fill="#1a1f2e" stroke="#3a4a5c" stroke-width="0.5"/>
+        <circle cx="90"  cy="144" r="1.5" fill="#0f1420"/>
+        <circle cx="150" cy="144" r="1.5" fill="#0f1420"/>
 
-        <!-- Funnel (forward of the bridge, on deck) -->
-        <rect x="108" y="164" width="24" height="30" fill="#c96f4a"/>
-        <rect x="108" y="164" width="24" height="5" fill="#1a1f2e"/>
-        <text x="120" y="185" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#f4ebd9">M</text>
-
-        <!-- Mast + crosstree (small) -->
-        <line x1="120" y1="164" x2="120" y2="156" stroke="#1a1f2e" stroke-width="1.5"/>
-        <line x1="113" y1="158" x2="127" y2="158" stroke="#1a1f2e" stroke-width="0.8"/>
-
-        <!-- Dark coaming band separating superstructure zone from cargo deck -->
-        <rect x="75" y="198" width="90" height="3" fill="#0f1420"/>
+        <!-- Coaming band between forecastle and cargo deck -->
+        <rect x="75" y="154" width="90" height="3" fill="#0f1420"/>
 
         <!-- ============================================================
-             CONTAINER DECK — 12 bays × 6 containers across, coloured
-             like a real top-down shot of a Panamax-class ship.
+             CONTAINER DECK — 12 bays, midship stretch of colourful boxes
         ============================================================ -->
         <g id="containers">
-          <g transform="translate(78 204)">
+          <g transform="translate(78 160)">
             <rect x="0"  y="0" width="14" height="18" fill="#c96f4a"/>
             <rect x="15" y="0" width="14" height="18" fill="#2d5f7a"/>
             <rect x="30" y="0" width="14" height="18" fill="#8a9c3e"/>
@@ -410,7 +407,7 @@
             <rect x="60" y="0" width="14" height="18" fill="#3a4a5c"/>
             <rect x="75" y="0" width="14" height="18" fill="#c96f4a"/>
           </g>
-          <g transform="translate(78 224)">
+          <g transform="translate(78 180)">
             <rect x="0"  y="0" width="14" height="18" fill="#d4a574"/>
             <rect x="15" y="0" width="14" height="18" fill="#8a9c3e"/>
             <rect x="30" y="0" width="14" height="18" fill="#c96f4a"/>
@@ -418,7 +415,7 @@
             <rect x="60" y="0" width="14" height="18" fill="#c96f4a"/>
             <rect x="75" y="0" width="14" height="18" fill="#3a4a5c"/>
           </g>
-          <g transform="translate(78 244)">
+          <g transform="translate(78 200)">
             <rect x="0"  y="0" width="14" height="18" fill="#3a4a5c"/>
             <rect x="15" y="0" width="14" height="18" fill="#c96f4a"/>
             <rect x="30" y="0" width="14" height="18" fill="#d4a574"/>
@@ -426,7 +423,7 @@
             <rect x="60" y="0" width="14" height="18" fill="#2d5f7a"/>
             <rect x="75" y="0" width="14" height="18" fill="#c96f4a"/>
           </g>
-          <g transform="translate(78 264)">
+          <g transform="translate(78 220)">
             <rect x="0"  y="0" width="14" height="18" fill="#2d5f7a"/>
             <rect x="15" y="0" width="14" height="18" fill="#d4a574"/>
             <rect x="30" y="0" width="14" height="18" fill="#c96f4a"/>
@@ -434,7 +431,7 @@
             <rect x="60" y="0" width="14" height="18" fill="#8a9c3e"/>
             <rect x="75" y="0" width="14" height="18" fill="#d4a574"/>
           </g>
-          <g transform="translate(78 284)">
+          <g transform="translate(78 240)">
             <rect x="0"  y="0" width="14" height="18" fill="#c96f4a"/>
             <rect x="15" y="0" width="14" height="18" fill="#3a4a5c"/>
             <rect x="30" y="0" width="14" height="18" fill="#2d5f7a"/>
@@ -442,7 +439,7 @@
             <rect x="60" y="0" width="14" height="18" fill="#d4a574"/>
             <rect x="75" y="0" width="14" height="18" fill="#8a9c3e"/>
           </g>
-          <g transform="translate(78 304)">
+          <g transform="translate(78 260)">
             <rect x="0"  y="0" width="14" height="18" fill="#8a9c3e"/>
             <rect x="15" y="0" width="14" height="18" fill="#c96f4a"/>
             <rect x="30" y="0" width="14" height="18" fill="#3a4a5c"/>
@@ -450,7 +447,7 @@
             <rect x="60" y="0" width="14" height="18" fill="#c96f4a"/>
             <rect x="75" y="0" width="14" height="18" fill="#2d5f7a"/>
           </g>
-          <g transform="translate(78 324)">
+          <g transform="translate(78 280)">
             <rect x="0"  y="0" width="14" height="18" fill="#d4a574"/>
             <rect x="15" y="0" width="14" height="18" fill="#2d5f7a"/>
             <rect x="30" y="0" width="14" height="18" fill="#c96f4a"/>
@@ -458,7 +455,7 @@
             <rect x="60" y="0" width="14" height="18" fill="#3a4a5c"/>
             <rect x="75" y="0" width="14" height="18" fill="#d4a574"/>
           </g>
-          <g transform="translate(78 344)">
+          <g transform="translate(78 300)">
             <rect x="0"  y="0" width="14" height="18" fill="#c96f4a"/>
             <rect x="15" y="0" width="14" height="18" fill="#d4a574"/>
             <rect x="30" y="0" width="14" height="18" fill="#2d5f7a"/>
@@ -466,7 +463,7 @@
             <rect x="60" y="0" width="14" height="18" fill="#3a4a5c"/>
             <rect x="75" y="0" width="14" height="18" fill="#8a9c3e"/>
           </g>
-          <g transform="translate(78 364)">
+          <g transform="translate(78 320)">
             <rect x="0"  y="0" width="14" height="18" fill="#3a4a5c"/>
             <rect x="15" y="0" width="14" height="18" fill="#c96f4a"/>
             <rect x="30" y="0" width="14" height="18" fill="#8a9c3e"/>
@@ -474,7 +471,7 @@
             <rect x="60" y="0" width="14" height="18" fill="#d4a574"/>
             <rect x="75" y="0" width="14" height="18" fill="#c96f4a"/>
           </g>
-          <g transform="translate(78 384)">
+          <g transform="translate(78 340)">
             <rect x="0"  y="0" width="14" height="18" fill="#2d5f7a"/>
             <rect x="15" y="0" width="14" height="18" fill="#d4a574"/>
             <rect x="30" y="0" width="14" height="18" fill="#c96f4a"/>
@@ -482,7 +479,7 @@
             <rect x="60" y="0" width="14" height="18" fill="#c96f4a"/>
             <rect x="75" y="0" width="14" height="18" fill="#8a9c3e"/>
           </g>
-          <g transform="translate(78 404)">
+          <g transform="translate(78 360)">
             <rect x="0"  y="0" width="14" height="18" fill="#c96f4a"/>
             <rect x="15" y="0" width="14" height="18" fill="#8a9c3e"/>
             <rect x="30" y="0" width="14" height="18" fill="#d4a574"/>
@@ -490,7 +487,7 @@
             <rect x="60" y="0" width="14" height="18" fill="#2d5f7a"/>
             <rect x="75" y="0" width="14" height="18" fill="#3a4a5c"/>
           </g>
-          <g transform="translate(78 424)">
+          <g transform="translate(78 380)">
             <rect x="0"  y="0" width="14" height="18" fill="#d4a574"/>
             <rect x="15" y="0" width="14" height="18" fill="#c96f4a"/>
             <rect x="30" y="0" width="14" height="18" fill="#3a4a5c"/>
@@ -499,170 +496,183 @@
             <rect x="75" y="0" width="14" height="18" fill="#2d5f7a"/>
           </g>
 
-          <!-- Thin dark grid lines between bays for depth -->
+          <!-- Grid lines between bays -->
           <g stroke="#000" stroke-opacity="0.4" stroke-width="0.4">
-            <line x1="78" y1="223" x2="167" y2="223"/>
-            <line x1="78" y1="243" x2="167" y2="243"/>
-            <line x1="78" y1="263" x2="167" y2="263"/>
-            <line x1="78" y1="283" x2="167" y2="283"/>
-            <line x1="78" y1="303" x2="167" y2="303"/>
-            <line x1="78" y1="323" x2="167" y2="323"/>
-            <line x1="78" y1="343" x2="167" y2="343"/>
-            <line x1="78" y1="363" x2="167" y2="363"/>
-            <line x1="78" y1="383" x2="167" y2="383"/>
-            <line x1="78" y1="403" x2="167" y2="403"/>
-            <line x1="78" y1="423" x2="167" y2="423"/>
+            <line x1="78" y1="179" x2="167" y2="179"/>
+            <line x1="78" y1="199" x2="167" y2="199"/>
+            <line x1="78" y1="219" x2="167" y2="219"/>
+            <line x1="78" y1="239" x2="167" y2="239"/>
+            <line x1="78" y1="259" x2="167" y2="259"/>
+            <line x1="78" y1="279" x2="167" y2="279"/>
+            <line x1="78" y1="299" x2="167" y2="299"/>
+            <line x1="78" y1="319" x2="167" y2="319"/>
+            <line x1="78" y1="339" x2="167" y2="339"/>
+            <line x1="78" y1="359" x2="167" y2="359"/>
+            <line x1="78" y1="379" x2="167" y2="379"/>
           </g>
-          <!-- Vertical row separators -->
           <g stroke="#000" stroke-opacity="0.3" stroke-width="0.3">
-            <line x1="93"  y1="204" x2="93"  y2="442"/>
-            <line x1="108" y1="204" x2="108" y2="442"/>
-            <line x1="123" y1="204" x2="123" y2="442"/>
-            <line x1="138" y1="204" x2="138" y2="442"/>
-            <line x1="153" y1="204" x2="153" y2="442"/>
+            <line x1="93"  y1="160" x2="93"  y2="398"/>
+            <line x1="108" y1="160" x2="108" y2="398"/>
+            <line x1="123" y1="160" x2="123" y2="398"/>
+            <line x1="138" y1="160" x2="138" y2="398"/>
+            <line x1="153" y1="160" x2="153" y2="398"/>
           </g>
         </g>
 
         <!-- ============================================================
-             FORECASTLE — forward deck between cargo and bow
+             AFT SUPERSTRUCTURE — bridge + funnel, near the STERN (bottom)
         ============================================================ -->
-        <rect x="75" y="448" width="90" height="4" fill="#0f1420"/>
-        <rect x="82" y="456" width="76" height="42" fill="#2a3142"/>
-        <!-- Anchor windlass details -->
-        <circle cx="100" cy="478" r="3" fill="#c96f4a"/>
-        <circle cx="140" cy="478" r="3" fill="#c96f4a"/>
-        <!-- Forward hatch -->
-        <rect x="105" y="464" width="30" height="26" fill="#1a1f2e" stroke="#3a4a5c" stroke-width="0.5"/>
-        <!-- Mooring bits -->
-        <circle cx="90"  cy="492" r="1.5" fill="#0f1420"/>
-        <circle cx="150" cy="492" r="1.5" fill="#0f1420"/>
+        <rect x="75" y="402" width="90" height="3" fill="#0f1420"/>
 
-        <!-- Jackstaff at the bow tip -->
-        <rect x="118" y="572" width="4" height="5" fill="#c96f4a"/>
+        <!-- Funnel (forward of the bridge) -->
+        <rect x="108" y="410" width="24" height="30" fill="#c96f4a"/>
+        <rect x="108" y="410" width="24" height="5" fill="#1a1f2e"/>
+        <text x="120" y="431" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#f4ebd9">M</text>
+        <line x1="120" y1="410" x2="120" y2="402" stroke="#1a1f2e" stroke-width="1.5"/>
+        <line x1="113" y1="404" x2="127" y2="404" stroke="#1a1f2e" stroke-width="0.8"/>
+
+        <!-- Bridge castle (white superstructure) -->
+        <rect x="88" y="450" width="64" height="54" fill="#e8e4db"/>
+        <rect x="88" y="499" width="64" height="5" fill="#c96f4a"/>
+        <rect x="72" y="476" width="16" height="14" fill="#e8e4db"/>
+        <rect x="152" y="476" width="16" height="14" fill="#e8e4db"/>
+        <!-- Forward-facing bridge windows (near top of the castle, looking toward bow) -->
+        <g fill="#0a2340">
+          <rect x="94"  y="455" width="8" height="5"/>
+          <rect x="104" y="455" width="8" height="5"/>
+          <rect x="114" y="455" width="8" height="5"/>
+          <rect x="124" y="455" width="8" height="5"/>
+          <rect x="134" y="455" width="8" height="5"/>
+          <rect x="144" y="455" width="4" height="5"/>
+        </g>
+        <line x1="88" y1="470" x2="152" y2="470" stroke="#0f1420" stroke-width="0.6"/>
 
         <!-- ============================================================
-             BOW WAVE — white "V" of foam spreading forward as the ship
-             cuts through the water.
+             STERN WAKE — churn behind the transom, fans outward/downward
         ============================================================ -->
         <g opacity="0.9">
-          <path d="M 70 555 Q 55 580 40 600 L 52 600 Q 67 582 82 565 Z" fill="#ffffff" opacity="0.35"/>
-          <path d="M 170 555 Q 185 580 200 600 L 188 600 Q 173 582 158 565 Z" fill="#ffffff" opacity="0.35"/>
-          <path d="M 82 570 Q 72 585 62 600 L 72 600 Q 80 588 90 578 Z" fill="#ffffff" opacity="0.5"/>
-          <path d="M 158 570 Q 168 585 178 600 L 168 600 Q 160 588 150 578 Z" fill="#ffffff" opacity="0.5"/>
-          <!-- Foam cushion at the bow -->
-          <ellipse cx="120" cy="588" rx="35" ry="6" fill="#ffffff" opacity="0.55"/>
-          <!-- Spray dots -->
-          <g fill="#ffffff" opacity="0.55">
-            <circle cx="95"  cy="595" r="1"/>
-            <circle cx="108" cy="598" r="0.8"/>
-            <circle cx="135" cy="597" r="1"/>
-            <circle cx="148" cy="594" r="0.8"/>
+          <ellipse cx="120" cy="522" rx="42" ry="10" fill="#ffffff" opacity="0.55"/>
+          <ellipse cx="120" cy="528" rx="55" ry="18" fill="#ffffff" opacity="0.42"/>
+          <!-- Outer diverging trails -->
+          <path d="M 80 520 Q 60 560 40 600 L 30 600 Q 45 560 70 505 Z" fill="#ffffff" opacity="0.22"/>
+          <path d="M 160 520 Q 180 560 200 600 L 210 600 Q 195 560 170 505 Z" fill="#ffffff" opacity="0.22"/>
+          <path d="M 95 540 Q 85 570 75 600 L 67 600 Q 77 570 90 530 Z" fill="#ffffff" opacity="0.32"/>
+          <path d="M 145 540 Q 155 570 165 600 L 173 600 Q 163 570 150 530 Z" fill="#ffffff" opacity="0.32"/>
+          <!-- Prop wash dots -->
+          <g fill="#ffffff" opacity="0.4">
+            <circle cx="95"  cy="545" r="1.2"/>
+            <circle cx="110" cy="558" r="1"/>
+            <circle cx="130" cy="562" r="1"/>
+            <circle cx="145" cy="548" r="1.2"/>
+            <circle cx="120" cy="570" r="1.4"/>
+            <circle cx="108" cy="575" r="0.8"/>
+            <circle cx="135" cy="578" r="0.8"/>
           </g>
         </g>
 
       </svg>
     </div>
 
-    <!-- Scroll cue — bottom-right so it doesn't clash with the ship -->
-    <div class="scroll-cue absolute bottom-6 right-6 md:right-12 z-20 flex flex-col items-end gap-2 text-bone/70">
+    <!-- Scroll cue -->
+    <div class="scroll-cue absolute bottom-6 right-6 md:right-12 z-30 flex flex-col items-end gap-2 text-bone/70">
       <div class="font-mono text-[0.65rem] tracking-[0.3em] uppercase">Descend</div>
       <svg width="12" height="18" viewBox="0 0 12 18" fill="none"><path d="M6 1v15m0 0l-5-5m5 5l5-5" stroke="currentColor" stroke-width="1.2"/></svg>
     </div>
-  </section>
 
-  <!--
-    ========================================================================
-    CONTENT — THE DESTINATION
-    ========================================================================
-  -->
-  <section id="content" class="vignette relative py-28 md:py-40 px-6 md:px-12">
-    <div class="max-w-6xl mx-auto">
+    <!--
+      ========================================================================
+      DESTINATION — the actual website, revealed IN THE WAKE of the ship.
+      Lives inside the same pinned stage. GSAP fades this in as the ship
+      passes through and over the content.
+      ========================================================================
+    -->
+    <div class="destination" id="destination">
+      <div class="h-full w-full overflow-y-auto">
+        <div class="px-6 md:px-12 py-20 md:py-28 max-w-6xl mx-auto">
 
-      <div class="flex items-baseline justify-between mb-16 md:mb-24">
-        <div class="chapter-tag">Chapter II · The Destination</div>
-        <div class="big-num text-brass/30 text-[6rem] md:text-[9rem] select-none">02</div>
-      </div>
-
-      <h2 class="font-display font-light text-bone tracking-mega leading-[0.95]
-                 text-[clamp(2.4rem,6.5vw,5.5rem)] max-w-4xl">
-        Where the water
-        <span class="italic font-normal text-brass">turns</span>
-        to ink, the work begins.
-      </h2>
-
-      <div class="rule-thin my-16 md:my-20"></div>
-
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
-
-        <aside class="md:col-span-3 space-y-6">
-          <div>
-            <div class="chapter-tag mb-2">§ 01</div>
-            <div class="font-display text-bone text-xl">On Cargo</div>
+          <div class="flex items-baseline justify-between mb-14 md:mb-20">
+            <div class="chapter-tag">Chapter II · The Destination</div>
+            <div class="big-num text-brass/30 text-[5rem] md:text-[8rem] select-none">02</div>
           </div>
-          <p class="font-mono text-xs text-bone/50 leading-relaxed">
-            Filed from the wheelhouse, 03:14 ship's time. Transcribed by the second mate.
-          </p>
-        </aside>
 
-        <div class="md:col-span-4 space-y-5 font-display text-bone/85 text-[1.05rem] leading-[1.7]">
-          <p class="first-letter:float-left first-letter:font-display first-letter:font-medium first-letter:text-6xl first-letter:leading-[0.85] first-letter:mr-2 first-letter:mt-1 first-letter:text-brass">
-            Every voyage is a small act of faith — a wager against weather, ledger, and time. The Meridian carries twenty-two thousand containers across ocean corridors older than any nation she flies.
-          </p>
-          <p>
-            We do not move boxes. We move the promises packed inside them: grain for Lagos, turbines for Dakar, medicine for ports whose names our grandfathers never learned to spell.
-          </p>
-        </div>
+          <h2 class="font-display font-light text-bone tracking-mega leading-[0.95]
+                     text-[clamp(2.2rem,5.5vw,4.8rem)] max-w-4xl">
+            Where the water
+            <span class="italic font-normal text-brass">turns</span>
+            to ink, the work begins.
+          </h2>
 
-        <div class="md:col-span-5 space-y-5 font-display text-bone/75 text-[1rem] leading-[1.75]">
-          <p>
-            The route from <span class="text-brass font-medium">Rotterdam</span> to <span class="text-brass font-medium">Singapore</span> crosses four seas, one canal, and a thousand quiet hours where nothing happens but the low hum of the engine and the turning of pages in the mess. This is the texture of the trade: long stretches of ordinary, punctuated by the exacting choreography of port.
-          </p>
-          <p>
-            Meridian Line keeps a fleet of seventeen vessels. They sail under a plain white flag with a single rust-coloured stripe — our reminder that the work is unglamorous, dependable, and absolutely necessary.
-          </p>
-          <div class="grid grid-cols-3 gap-6 pt-6 border-t border-bone/10">
-            <div>
-              <div class="big-num text-brass text-4xl">17</div>
-              <div class="font-mono text-[0.65rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Active vessels</div>
+          <div class="rule-thin my-12 md:my-16"></div>
+
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-14">
+
+            <aside class="md:col-span-3 space-y-6">
+              <div>
+                <div class="chapter-tag mb-2">§ 01</div>
+                <div class="font-display text-bone text-xl">On Cargo</div>
+              </div>
+              <p class="font-mono text-xs text-bone/50 leading-relaxed">
+                Filed from the wheelhouse, 03:14 ship's time.
+              </p>
+            </aside>
+
+            <div class="md:col-span-4 space-y-5 font-display text-bone/85 text-[1.02rem] leading-[1.7]">
+              <p class="first-letter:float-left first-letter:font-display first-letter:font-medium first-letter:text-6xl first-letter:leading-[0.85] first-letter:mr-2 first-letter:mt-1 first-letter:text-brass">
+                Every voyage is a small act of faith — a wager against weather, ledger, and time. The Meridian carries twenty-two thousand containers across ocean corridors older than any nation she flies.
+              </p>
+              <p>
+                We do not move boxes. We move the promises packed inside them: grain for Lagos, turbines for Dakar, medicine for ports whose names our grandfathers never learned to spell.
+              </p>
             </div>
-            <div>
-              <div class="big-num text-brass text-4xl">142</div>
-              <div class="font-mono text-[0.65rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Ports served</div>
-            </div>
-            <div>
-              <div class="big-num text-brass text-4xl">29y</div>
-              <div class="font-mono text-[0.65rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Since launch</div>
+
+            <div class="md:col-span-5 space-y-5 font-display text-bone/75 text-[0.98rem] leading-[1.7]">
+              <p>
+                The route from <span class="text-brass font-medium">Rotterdam</span> to <span class="text-brass font-medium">Singapore</span> crosses four seas, one canal, and a thousand quiet hours where nothing happens but the low hum of the engine and the turning of pages in the mess.
+              </p>
+              <div class="grid grid-cols-3 gap-5 pt-5 border-t border-bone/10">
+                <div>
+                  <div class="big-num text-brass text-3xl">17</div>
+                  <div class="font-mono text-[0.62rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Active vessels</div>
+                </div>
+                <div>
+                  <div class="big-num text-brass text-3xl">142</div>
+                  <div class="font-mono text-[0.62rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Ports served</div>
+                </div>
+                <div>
+                  <div class="big-num text-brass text-3xl">29y</div>
+                  <div class="font-mono text-[0.62rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Since launch</div>
+                </div>
+              </div>
             </div>
           </div>
+
+          <div class="mt-16 md:mt-24 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 border-t border-bone/15 pt-10">
+            <div>
+              <div class="chapter-tag mb-3">Book passage</div>
+              <p class="font-display text-bone text-2xl md:text-3xl max-w-xl leading-tight">
+                Request a manifest slot on the next eastbound crossing.
+              </p>
+            </div>
+            <button class="btn-voyage" type="button">
+              Get Started
+              <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5h12m0 0L9 1m4 4L9 9" stroke="currentColor" stroke-width="1.3"/></svg>
+            </button>
+          </div>
+
+          <div class="mt-20 pt-8 border-t border-bone/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 font-mono text-[0.7rem] tracking-[0.22em] uppercase text-bone/40">
+            <div>© MMXXVI · Meridian Line Shipping Co.</div>
+            <div class="flex gap-8">
+              <a href="#" class="hover:text-bone transition">Privacy</a>
+              <a href="#" class="hover:text-bone transition">Manifest</a>
+              <a href="#" class="hover:text-bone transition">Careers</a>
+            </div>
+          </div>
+
         </div>
       </div>
-
-      <div class="mt-24 md:mt-32 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 border-t border-bone/15 pt-12">
-        <div>
-          <div class="chapter-tag mb-3">Book passage</div>
-          <p class="font-display text-bone text-2xl md:text-3xl max-w-xl leading-tight">
-            Request a manifest slot on the next eastbound crossing.
-          </p>
-        </div>
-        <button class="btn-voyage" type="button">
-          Get Started
-          <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5h12m0 0L9 1m4 4L9 9" stroke="currentColor" stroke-width="1.3"/></svg>
-        </button>
-      </div>
-
     </div>
+
   </section>
-
-  <footer class="relative px-6 md:px-12 py-10 border-t border-bone/10 bg-trench">
-    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4 font-mono text-[0.7rem] tracking-[0.22em] uppercase text-bone/40">
-      <div>© MMXXVI · Meridian Line Shipping Co.</div>
-      <div class="flex gap-8">
-        <a href="#" class="hover:text-bone transition">Privacy</a>
-        <a href="#" class="hover:text-bone transition">Manifest</a>
-        <a href="#" class="hover:text-bone transition">Careers</a>
-      </div>
-    </div>
-  </footer>
 
   <script src="script.js"></script>
 </body>
