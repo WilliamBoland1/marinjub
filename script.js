@@ -1,184 +1,183 @@
 /* ============================================================================
  * Meridian Line — Ship-Scroll
  * ----------------------------------------------------------------------------
- * A single pinned stage. On load: open ocean, ship's BOW peeking up from the
- * bottom. On scroll: ship sails upward, its wake paints a luminous trail down
- * the centre, and the Meridian Line website is revealed THROUGH that wake.
+ * Scroll-linked hero animation using GSAP + ScrollTrigger.
  *
- * Three phases, all scrubbed to scroll progress
- * ---------------------------------------------
- *   [0.00 – 0.55]  SHIP TRAVELS
- *                  Ship translates from bottom-of-viewport up and off the top.
- *                  Headline + scroll cue fade. Water darkens slightly.
- *
- *   [0.15 – 0.70]  WAKE PAINTS
- *                  A soft foam-trail gradient grows downward from where the
- *                  ship has passed, marking the channel where content appears.
- *
- *   [0.40 – 1.00]  DESTINATION REVEALS
- *                  The full editorial content fades in behind the wake and
- *                  becomes interactive. Water fully transitions to abyss.
+ * Behaviour
+ * ---------
+ * • Hero section is pinned for the duration of the voyage animation.
+ * • Ship translates vertically from its starting position (bottom of viewport)
+ *   up and past the top edge. The motion is "scrubbed" — tied 1:1 to scroll
+ *   progress so the user controls the pace.
+ * • Background shifts from a bright morning palette (sky → horizon → sea)
+ *   into the deep abyss that the content section sits in, producing a seamless
+ *   hand-off to Chapter II.
+ * • Decorative elements (wave layers, headline copy, scroll cue) fade and
+ *   drift to emphasise the descent.
  *
  * Customisation
  * -------------
- *   PIN_DURATION      — total scroll distance the pinned stage consumes
- *   SHIP_TRAVEL_VH    — how far up the ship wrapper travels (negative = up)
+ * • Tweak PIN_DURATION to shorten/lengthen the scroll distance required to
+ *   complete the voyage.
+ * • Palette stops are defined in CSS custom properties (see index.html) and
+ *   referenced here by name — change them in one place.
  * ========================================================================== */
 
 (function () {
   'use strict';
 
+  // Respect users who prefer reduced motion — deliver a static, readable page.
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  // Wait for GSAP to be available (loaded via CDN in the head).
   if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
     console.warn('[Meridian] GSAP or ScrollTrigger failed to load.');
     return;
   }
+
   gsap.registerPlugin(ScrollTrigger);
 
   /* --------------------------------------------------------------------------
    * Configuration
    * ------------------------------------------------------------------------ */
-  const PIN_DURATION   = '+=220%';  // a bit longer so all three phases feel deliberate
-  const SHIP_TRAVEL_VH = -130;      // travel far enough for the stern + wake to clear
+  // How much scroll distance the pinned hero consumes.
+  // "+=150%" means the user must scroll 1.5× the viewport height to complete
+  // the voyage animation. Increase for a slower, more cinematic scrub.
+  const PIN_DURATION = '+=150%';
 
+  // Palette — read from CSS custom properties so the theme stays in sync.
   const css = getComputedStyle(document.documentElement);
   const palette = {
-    openSea: css.getPropertyValue('--c-openSea').trim() || '#123558',
-    deep:    css.getPropertyValue('--c-deep').trim()    || '#0a2340',
-    abyss:   css.getPropertyValue('--c-abyss').trim()   || '#071829',
-    trench:  css.getPropertyValue('--c-trench').trim()  || '#030c16',
+    surface: '#bcdbea',  // lighter, more airy blue
+    horizon: '#6f9fbd',  // brighter mid-tone
+    deep:    '#244a73',  // slightly lifted contrast
+    abyss:   '#11233d',  // less crushed, more visible detail
+    trench:  '#0a1324',  // still dark, but not pitch black
   };
 
   /* --------------------------------------------------------------------------
-   * Element references
-   * ------------------------------------------------------------------------ */
-  const stage       = document.querySelector('#stage');
-  const ship        = document.querySelector('#ship');
-  const wake        = document.querySelector('#wake');
-  const headline    = document.querySelector('.hero-headline');
-  const destination = document.querySelector('#destination');
-  const texture     = document.querySelector('.water-texture');
-  const streaks     = document.querySelector('.water-streaks');
-  const cue         = document.querySelector('.scroll-cue');
-
-  if (!stage || !ship || !destination) {
-    console.warn('[Meridian] Required stage element missing — aborting.');
-    return;
-  }
-
-  /* --------------------------------------------------------------------------
-   * Reduced-motion: show destination statically, skip the voyage
+   * Reduced-motion fallback
+   * Display the hero as-is without pinning or scrubbing.
    * ------------------------------------------------------------------------ */
   if (prefersReduced) {
-    gsap.set(ship,     { display: 'none' });
-    gsap.set(wake,     { display: 'none' });
-    gsap.set(headline, { display: 'none' });
-    gsap.set(destination, { opacity: 1, pointerEvents: 'auto' });
-    destination.classList.add('is-revealed');
     return;
   }
 
   /* --------------------------------------------------------------------------
-   * Master timeline — normalized [0 → 1] across the pin duration
+   * Main scroll-triggered timeline
    * ------------------------------------------------------------------------ */
+  const hero     = document.querySelector('#hero');
+  const ship     = document.querySelector('#ship');
+  const headline = document.querySelector('.hero-headline');
+  const waves    = document.querySelectorAll('#hero .wave');
+  const haze     = document.querySelector('#hero .horizon-haze');
+  const cue      = document.querySelector('.scroll-cue');
+
+  if (!hero || !ship) {
+    console.warn('[Meridian] Hero or ship element missing — aborting animation.');
+    return;
+  }
+
+  // Build a timeline attached to a ScrollTrigger that pins the hero.
   const tl = gsap.timeline({
     defaults: { ease: 'none' },
     scrollTrigger: {
-      trigger: stage,
+      trigger: hero,
       start:   'top top',
       end:     PIN_DURATION,
       pin:     true,
-      scrub:   0.6,
+      scrub:   0.6,          // slight smoothing on the scrub
       anticipatePin: 1,
-      onUpdate: (self) => {
-        // Flip pointer-events on once the content is mostly visible,
-        // so the user can click links and buttons without accidental hits
-        // while the voyage is still running.
-        if (self.progress > 0.75) {
-          destination.classList.add('is-revealed');
-        } else {
-          destination.classList.remove('is-revealed');
-        }
-      },
-      // markers: true,
+      // markers: true,      // uncomment while debugging
     },
   });
 
-  /* ----- PHASE 1 — SHIP TRAVELS [0.00 – 0.55] ----------------------------- */
-
-  // Ship translates upward, slight scale-down for perspective
-  tl.to(ship, {
-    y:     `${SHIP_TRAVEL_VH}vh`,
-    scale: 0.9,
-    duration: 0.55,
+  // -- Background gradient: shift from morning to abyss --------------------
+  //
+  // We animate the `background` property directly. GSAP tweens the gradient
+  // stops (it understands the syntax), producing a smooth colour transition
+  // rather than a hard swap.
+  tl.to(hero, {
+    background: `radial-gradient(ellipse at 50% 110%, rgba(5,11,23,0.9) 0%, transparent 70%),
+                 linear-gradient(180deg, ${palette.deep} 0%, ${palette.abyss} 55%, ${palette.trench} 100%)`,
+    duration: 1,
   }, 0);
 
-  // Headline lifts and fades ~first third
-  if (headline) {
-    tl.to(headline, { y: -80, opacity: 0, duration: 0.3 }, 0);
-  }
+  // -- Ship: travel from bottom of viewport to above the top --------------
+  //
+  // Starting transform is handled by CSS (bottom: 8vh, translateX(-50%)).
+  // We translate it upward by roughly 120vh so it fully exits the viewport.
+  // A tiny horizontal drift adds parallax personality without feeling wobbly.
+  tl.to(ship, {
+    y:     '-120vh',
+    x:     '-20px',
+    scale: 0.92,
+    duration: 1,
+  }, 0);
 
-  // Scroll cue disappears immediately
-  if (cue) {
-    tl.to(cue, { opacity: 0, duration: 0.1 }, 0);
-  }
-
-  // Water surface drifts downward relative to motion, texture slowly fades
-  if (texture) {
-    tl.to(texture, {
-      backgroundPosition: '0px 600px',
+  // -- Waves: drift downward and fade as we descend -----------------------
+  waves.forEach((wave, i) => {
+    tl.to(wave, {
+      y:       30 + i * 20,
       opacity: 0.15,
       duration: 1,
     }, 0);
+  });
+
+  // -- Horizon haze: fades as the horizon itself disappears ---------------
+  if (haze) {
+    tl.to(haze, { opacity: 0, duration: 0.6 }, 0);
   }
-  if (streaks) {
-    tl.to(streaks, { y: 150, opacity: 0.08, duration: 1 }, 0);
+
+  // -- Headline: drifts up and fades ~40% into the scroll -----------------
+  if (headline) {
+    tl.to(headline, {
+      y:       -60,
+      opacity: 0,
+      duration: 0.5,
+    }, 0);
   }
 
-  /* ----- PHASE 2 — WAKE PAINTS [0.15 – 0.70] ----------------------------- */
-
-  // The wake grows from zero height to fill the viewport. It traces the
-  // vertical channel the ship just travelled through.
-  tl.fromTo(wake,
-    { height: '0vh',  opacity: 0 },
-    { height: '110vh', opacity: 1, duration: 0.55, ease: 'power1.out' },
-    0.15
-  );
-
-  // Wake softens and fades out at the end, once content has taken over
-  tl.to(wake, { opacity: 0, duration: 0.2 }, 0.75);
-
-  /* ----- PHASE 3 — WATER → ABYSS + DESTINATION REVEAL [0.40 – 1.00] ------ */
-
-  // Water gradient transitions to the deep abyss theme
-  tl.to(stage, {
-    background:
-      `radial-gradient(ellipse 80% 60% at 20% 85%, rgba(70,120,160,0.02) 0%, transparent 55%),
-       radial-gradient(ellipse 60% 50% at 85% 15%, rgba(5,15,28,0.55) 0%, transparent 60%),
-       linear-gradient(170deg, ${palette.deep} 0%, ${palette.abyss} 55%, ${palette.trench} 100%)`,
-    duration: 0.6,
-  }, 0.4);
-
-  // Destination fades in
-  tl.to(destination, {
-    opacity: 1,
-    duration: 0.45,
-  }, 0.5);
-
-  // Subtle upward settle of the destination content for life
-  tl.from(destination.querySelector('.px-6.md\\:px-12'), {
-    y: 60,
-    duration: 0.5,
-    ease: 'power2.out',
-  }, 0.5);
+  // -- Scroll cue: fades out almost immediately ---------------------------
+  if (cue) {
+    tl.to(cue, { opacity: 0, duration: 0.15 }, 0);
+  }
 
   /* --------------------------------------------------------------------------
-   * Keep ScrollTrigger accurate on resize / orientation change
+   * Responsive: rebuild on significant resize (e.g. orientation change)
    * ------------------------------------------------------------------------ */
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => ScrollTrigger.refresh(), 200);
+  });
+
+  /* --------------------------------------------------------------------------
+   * Content section: gentle reveal of the factoids and CTA on entry.
+   * Purely decorative — not scrubbed, just a one-shot fade-in.
+   * ------------------------------------------------------------------------ */
+  gsap.from('#content h2', {
+    y: 40,
+    opacity: 0,
+    duration: 1.1,
+    ease: 'power3.out',
+    scrollTrigger: {
+      trigger: '#content h2',
+      start:   'top 80%',
+      once:    true,
+    },
+  });
+
+  gsap.from('#content .grid > *', {
+    y: 30,
+    opacity: 0,
+    duration: 0.9,
+    stagger: 0.12,
+    ease: 'power2.out',
+    scrollTrigger: {
+      trigger: '#content .grid',
+      start:   'top 75%',
+      once:    true,
+    },
   });
 })();

@@ -4,11 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Meridian Line — Trans-Oceanic Freight</title>
-  <meta name="description" content="A container ship sails up from the horizon, and the world of Meridian Line opens in its wake." />
+  <meta name="description" content="A demonstration of scroll-linked animation: a container ship voyages from horizon to port as the viewer descends into deep water." />
 
   <!-- Tailwind via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- Distinctive font pairing: serif display + mono utility -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,700;9..144,900&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
@@ -17,42 +18,57 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            display: ['Fraunces', 'Georgia', 'serif'],
-            mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
-          },
-          colors: {
-            shoal:    '#1e4a6e',
-            openSea:  '#123558',
-            deep:     '#0a2340',
-            abyss:    '#071829',
-            trench:   '#030c16',
-            bone:     '#f4ebd9',
-            rust:     '#c96f4a',
-            brass:    '#d4a574',
-          },
-          letterSpacing: { 'mega': '-0.04em' }
+  <!--
+    ========================================================================
+    TAILWIND CONFIG — extend with custom maritime palette + fonts
+    ========================================================================
+  -->
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['Fraunces', 'Georgia', 'serif'],
+          mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        },
+        colors: {
+          surface:  'var(--c-surface)',
+          horizon:  'var(--c-horizon)',
+          deep:     'var(--c-deep)',
+          abyss:    'var(--c-abyss)',
+          trench:   'var(--c-trench)',
+          bone:     '#f4ebd9',
+          rust:     '#c96f4a',
+          brass:    '#d4a574',
+          bone:     '#f4ebd9',
+          rust:     '#c96f4a',
+          brass:    '#d4a574',
+        },
+        letterSpacing: {
+          'mega': '-0.04em',
         }
       }
     }
-  </script>
-
+  }
+</script>
+  <!--
+    ========================================================================
+    BASE STYLES — custom properties, grain texture, typography polish
+    ========================================================================
+  -->
   <style>
     :root {
-      --c-openSea: #123558;
-      --c-deep:    #0a2340;
-      --c-abyss:   #071829;
-      --c-trench:  #030c16;
+      --c-surface: #d6effa;
+      --c-horizon: #8bb8d3;
+      --c-deep:    #3a6f9c;
+      --c-abyss:   #1a3554;
+      --c-trench:  #0f1e33;
       --c-bone:    #f4ebd9;
       --c-rust:    #c96f4a;
       --c-brass:   #d4a574;
     }
 
-    html { scroll-behavior: auto; }
+    html { scroll-behavior: auto; }  /* GSAP handles smoothness */
     body {
       font-family: 'Fraunces', Georgia, serif;
       background: var(--c-abyss);
@@ -60,38 +76,33 @@
       overflow-x: hidden;
     }
 
-    /* ----------------------------------------------------------------------
-       Stage — the single pinned section. The ship sails up through it and
-       the destination content is revealed in its wake.
-    ---------------------------------------------------------------------- */
-    .stage-bg {
-      background:
-        radial-gradient(ellipse 80% 60% at 20% 85%, rgba(70,120,160,0.28) 0%, transparent 55%),
-        radial-gradient(ellipse 60% 50% at 85% 15%, rgba(5,15,28,0.35) 0%, transparent 60%),
-        linear-gradient(170deg, var(--c-openSea) 0%, var(--c-deep) 60%, var(--c-abyss) 100%);
+  .hero-bg {
+    background:
+      radial-gradient(ellipse at 50% 110%, rgba(10,22,40,0.55) 0%, transparent 60%),
+      linear-gradient(
+        180deg,
+        var(--c-surface) 0%,
+        var(--c-horizon) 35%,
+        var(--c-deep) 65%,
+        var(--c-abyss) 85%,
+        var(--c-trench) 100%
+      );
     }
 
-    /* Water texture layer — SVG turbulence noise for surface detail */
-    .water-texture {
-      position: absolute; inset: 0;
+    #hero::after {
+        content: '';
+        position: absolute;
+        left: 0; right: 0; bottom: 0;
+        height: 120px;
+        background: linear-gradient(
+          to bottom,
+          transparent,
+          var(--c-abyss)
+        );
       pointer-events: none;
-      opacity: 0.35;
-      mix-blend-mode: overlay;
-      background-image:
-        url("data:image/svg+xml;utf8,<svg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'><filter id='w'><feTurbulence type='fractalNoise' baseFrequency='0.015 0.04' numOctaves='2' seed='4'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.5 0'/></filter><rect width='100%' height='100%' filter='url(%23w)'/></svg>");
-      background-size: 800px 800px;
     }
 
-    .water-streaks {
-      position: absolute; inset: 0;
-      pointer-events: none;
-      opacity: 0.25;
-      background-image:
-        url("data:image/svg+xml;utf8,<svg viewBox='0 0 600 800' xmlns='http://www.w3.org/2000/svg'><g stroke='white' stroke-opacity='0.15' fill='none' stroke-width='0.6'><path d='M100 0 Q 110 400 95 800'/><path d='M250 0 Q 240 400 255 800'/><path d='M380 0 Q 390 400 375 800'/><path d='M510 0 Q 500 400 515 800'/></g></svg>");
-      background-size: 100% 100%;
-    }
-
-    /* Film grain */
+    /* Subtle film grain overlay — gives the whole page a printed feel */
     .grain::after {
       content: '';
       position: fixed; inset: 0;
@@ -100,74 +111,56 @@
       background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.55'/></svg>");
     }
 
-    /* ----------------------------------------------------------------------
-       Ship
-       ----
-       SVG is tall (240 × 600). Orientation: BOW at TOP of SVG (y≈0),
-       STERN at BOTTOM (y≈600). Wake fans downward off the stern.
-       Wrapper starts with its top edge near the bottom of the viewport
-       so only the BOW + foredeck is visible on load.
+    /* Horizon haze band — thin strip of mist where sky meets sea */
+    .horizon-haze {
+      position: absolute;
+      left: 0; right: 0;
+      top: 48%;
+      height: 90px;
+      background: linear-gradient(180deg, transparent, rgba(244,235,217,0.12), transparent);
+      pointer-events: none;
+      filter: blur(2px);
+    }
 
-       If you want to swap in a PNG later: replace the <svg> inside
-       .ship-wrap with an <img> of equal aspect ratio (roughly 1:2.5
-       tall). The wrapper + GSAP logic stays identical.
-    ---------------------------------------------------------------------- */
+    /* Parallax wave layers */
+    .wave {
+      position: absolute;
+      left: -5%; right: -5%;
+      height: 180px;
+      pointer-events: none;
+    }
+
+    /* Ship wrapper — positioned absolutely, animated by GSAP */
     .ship-wrap {
       position: absolute;
       left: 50%;
-      /* Place the wrapper so only the BOW (top of SVG) pokes into the
-         viewport from below. The SVG is tall, so the rest of the hull
-         sits below the fold at rest. */
-      top: calc(100vh - 180px);
+      bottom: 8vh;
       transform: translateX(-50%);
-      width: min(340px, 50vw);
+      width: min(560px, 72vw);
       will-change: transform;
-      filter: drop-shadow(0 -20px 40px rgba(3,12,22,0.6));
-      z-index: 15;
+      filter: drop-shadow(0 30px 40px rgba(5,11,23,0.55));
     }
 
-    /* Subtle heading-drift while sailing */
-    @keyframes drift {
-      0%,100% { transform: translateX(-50%) rotate(-0.3deg); }
-      50%     { transform: translateX(-52%) rotate(0.3deg); }
+    /* Ship gently bobs — compounds with GSAP scroll transform */
+    @keyframes bob {
+      0%,100% { transform: translateX(-50%) translateY(0) rotate(-0.3deg); }
+      50%     { transform: translateX(-50%) translateY(-6px) rotate(0.3deg); }
     }
-    .ship-wrap { animation: drift 6s ease-in-out infinite; }
+    .ship-wrap { animation: bob 4.5s ease-in-out infinite; }
 
-    /* ----------------------------------------------------------------------
-       Wake trail — a gradient strip that paints down the screen behind
-       the ship as it travels up. This is what the content reveals through.
-    ---------------------------------------------------------------------- */
-    .wake-trail {
-      position: absolute;
-      left: 50%;
-      top: 0;
-      transform: translateX(-50%);
-      width: min(340px, 50vw);
-      height: 0;  /* grows via GSAP */
-      background:
-        linear-gradient(180deg,
-          rgba(244,235,217,0.0) 0%,
-          rgba(244,235,217,0.08) 12%,
-          rgba(244,235,217,0.15) 35%,
-          rgba(244,235,217,0.08) 70%,
-          rgba(244,235,217,0.0) 100%);
-      pointer-events: none;
-      z-index: 5;
-      mix-blend-mode: screen;
-      filter: blur(1px);
-    }
-
-    /* Ticker */
+    /* Marquee ticker at top of hero */
     @keyframes ticker {
       from { transform: translateX(0); }
       to   { transform: translateX(-50%); }
     }
     .ticker-track {
-      display: inline-flex; gap: 3rem;
+      display: inline-flex;
+      gap: 3rem;
       animation: ticker 45s linear infinite;
       white-space: nowrap;
     }
 
+    /* Large editorial number styling */
     .big-num {
       font-family: 'Fraunces', serif;
       font-variation-settings: "opsz" 144, "wght" 300;
@@ -175,6 +168,7 @@
       line-height: 0.85;
     }
 
+    /* Hand-drawn underline accent */
     .scribble {
       background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8'><path d='M2 5 Q 50 1, 100 4 T 198 3' stroke='%23c96f4a' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
       background-repeat: no-repeat;
@@ -183,9 +177,12 @@
       padding-bottom: 0.15em;
     }
 
+    /* Content CTA button — utilitarian, industrial feel */
     .btn-voyage {
       position: relative;
-      display: inline-flex; align-items: center; gap: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.9rem;
       padding: 1.1rem 2.2rem;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.78rem;
@@ -193,7 +190,8 @@
       text-transform: uppercase;
       color: var(--c-abyss);
       background: var(--c-bone);
-      border: none; cursor: pointer;
+      border: none;
+      cursor: pointer;
       transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.3s;
     }
     .btn-voyage::before {
@@ -206,33 +204,33 @@
     .btn-voyage:hover { transform: translate(-2px, -2px); background: var(--c-brass); }
     .btn-voyage:hover::before { transform: translate(12px, 12px); }
 
+    /* Thin rules as editorial dividers */
     .rule-thin { border-top: 1px solid rgba(244,235,217,0.18); }
 
+    /* Number label badges (mono, rotated slightly) */
     .chapter-tag {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.7rem; letter-spacing: 0.3em;
-      text-transform: uppercase; color: var(--c-brass);
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--c-brass);
     }
 
-    @keyframes cueUp {
+    /* Section with vignette */
+    .vignette {
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(26,58,92,0.35) 0%, transparent 55%),
+        var(--c-abyss);
+    }
+
+    /* Scroll cue */
+    @keyframes cueDown {
       0%,100% { transform: translateY(0); opacity: 0.6; }
-      50%     { transform: translateY(-6px); opacity: 1; }
+      50%     { transform: translateY(6px); opacity: 1; }
     }
-    .scroll-cue { animation: cueUp 2s ease-in-out infinite; }
+    .scroll-cue { animation: cueDown 2s ease-in-out infinite; }
 
-    /* Destination content — starts invisible, revealed by GSAP */
-    .destination {
-      position: absolute;
-      inset: 0;
-      z-index: 10;
-      opacity: 0;
-      pointer-events: none;
-      padding-top: 10vh;
-    }
-    .destination.is-revealed {
-      pointer-events: auto;
-    }
-
+    /* Reduce motion respect */
     @media (prefers-reduced-motion: reduce) {
       .ship-wrap, .ticker-track, .scroll-cue { animation: none; }
     }
@@ -242,30 +240,16 @@
 
   <!--
     ========================================================================
-    THE STAGE — single pinned section containing ocean, ship, and destination
+    HERO — THE VOYAGE
+    Pinned. Ship translates from bottom → top. Background shifts to abyss.
     ========================================================================
-    Layer stack (bottom to top by z-index):
-      • .stage-bg      : water gradient
-      • .water-texture : noise overlay
-      • .water-streaks : vertical current streaks
-      • .destination   : the actual website content (fades in during scroll)
-      • .wake-trail    : soft foam trail, paints behind the ship
-      • .ship-wrap     : the ship itself
-      • top chrome     : ticker, masthead, scroll cue
   -->
-  <section id="stage" class="relative w-full h-screen overflow-hidden stage-bg">
+  <section id="hero" class="relative w-full h-screen overflow-hidden hero-bg">
 
-    <!-- Water surface layers -->
-    <div class="water-texture"></div>
-    <div class="water-streaks"></div>
-
-    <!-- Wake trail that follows the ship up the screen -->
-    <div class="wake-trail" id="wake"></div>
-
-    <!-- Top ticker -->
-    <div class="absolute top-0 left-0 right-0 z-30 border-b border-white/10 bg-black/20 backdrop-blur-sm overflow-hidden">
+    <!-- Top ticker: "latest dispatches from sea" -->
+    <div class="absolute top-0 left-0 right-0 z-20 border-b border-white/10 bg-black/5 backdrop-blur-sm overflow-hidden">
       <div class="py-2.5 overflow-hidden">
-        <div class="ticker-track font-mono text-[0.7rem] tracking-[0.25em] uppercase text-bone/60">
+        <div class="ticker-track font-mono text-[0.7rem] tracking-[0.25em] uppercase text-bone/80">
           <span>◆ 47°36'N 008°32'W &nbsp;·&nbsp; MV Meridian en route Rotterdam → Singapore</span>
           <span>◆ Beaufort 3 · swell 1.2m · visibility clear</span>
           <span>◆ Est. arrival 14 days 06 hours</span>
@@ -278,402 +262,259 @@
       </div>
     </div>
 
-    <!-- Masthead -->
-    <header class="absolute top-14 left-0 right-0 z-30 px-6 md:px-12">
+    <!-- Top-left masthead -->
+    <header class="absolute top-14 left-0 right-0 z-20 px-6 md:px-12">
       <div class="flex items-start justify-between">
         <div>
-          <div class="chapter-tag text-bone/60">Est. MCMXCVII</div>
+          <div class="chapter-tag text-bone/70">Est. MCMXCVII</div>
           <h1 class="font-display text-2xl md:text-3xl font-medium text-bone tracking-mega leading-none mt-1">
             Meridian<span class="italic font-light">/</span>Line
           </h1>
         </div>
-        <nav class="hidden md:flex items-center gap-8 font-mono text-[0.72rem] tracking-[0.22em] uppercase text-bone/70">
-          <a href="#" class="hover:text-bone transition">Fleet</a>
-          <a href="#" class="hover:text-bone transition">Routes</a>
-          <a href="#" class="hover:text-bone transition">Manifest</a>
-          <a href="#" class="hover:text-bone transition">Contact</a>
+        <nav class="hidden md:flex items-center gap-8 font-mono text-[0.72rem] tracking-[0.22em] uppercase text-bone/80">
+          <a href="#" class="hover:text-trench transition">Fleet</a>
+          <a href="#" class="hover:text-trench transition">Routes</a>
+          <a href="#" class="hover:text-trench transition">Manifest</a>
+          <a href="#" class="hover:text-trench transition">Contact</a>
         </nav>
       </div>
     </header>
 
-    <!-- Opening headline — anchored upper-left, fades as ship passes -->
-    <div class="hero-headline absolute top-[28%] left-0 right-0 z-20 px-6 md:px-12">
-      <div class="max-w-3xl">
-        <div class="chapter-tag text-brass mb-4">Chapter I · The Crossing</div>
-        <h2 class="font-display font-light text-bone tracking-mega leading-[0.9]
-                   text-[clamp(2.6rem,8vw,6.5rem)]">
-          Twelve thousand <span class="italic font-normal scribble">nautical</span>
-          <br/>miles of patience.
-        </h2>
-        <p class="mt-6 max-w-md font-mono text-[0.72rem] md:text-xs tracking-[0.2em] uppercase text-bone/60">
-          Scroll to follow the MV Meridian into deep water.
-        </p>
-      </div>
+    <!-- Hero headline: anchored top-center, over the sky -->
+    <div class="hero-headline absolute top-[22%] left-0 right-0 z-10 px-6 md:px-12 text-center">
+      <div class="chapter-tag text-bone/70 mb-4">Chapter I · The Crossing</div>
+      <h2 class="font-display font-light text-bone tracking-mega leading-[0.9]
+                 text-[clamp(2.8rem,9vw,7.5rem)]">
+        Twelve thousand <span class="italic font-normal scribble">nautical</span>
+        <br/>miles of patience.
+      </h2>
+      <p class="mt-6 max-w-xl mx-auto font-mono text-[0.78rem] md:text-xs tracking-[0.2em] uppercase text-deep/70">
+        Scroll to follow the MV Meridian into deep water.
+      </p>
     </div>
 
+    <!-- Horizon haze -->
+    <div class="horizon-haze"></div>
+
+    <!-- Parallax wave layers — behind the ship -->
+    <svg class="wave" style="bottom: 18vh; opacity: 0.35;" viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,60 C150,90 300,30 450,60 C600,90 750,30 900,60 C1050,90 1200,30 1200,60 L1200,120 L0,120 Z" fill="var(--c-deep)"/>
+    </svg>
+    <svg class="wave" style="bottom: 6vh; opacity: 0.55;" viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,50 C200,80 400,20 600,50 C800,80 1000,20 1200,50 L1200,120 L0,120 Z" fill="var(--c-abyss)"/>
+    </svg>
+    <svg class="wave" style="bottom: -2vh; opacity: 0.8;" viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,70 C250,100 500,40 750,70 C950,95 1100,50 1200,70 L1200,120 L0,120 Z" fill="var(--c-trench)"/>
+    </svg>
+
     <!--
-      SHIP — BIRD'S-EYE VIEW, BOW POINTING UP
-      =======================================
-      BOW at TOP of SVG (y≈0), STERN at BOTTOM (y≈585).
-      Wake (churn + prop wash) fans OFF THE STERN = below y=585.
-      The ship appears to sail UP the screen; wake trails DOWN behind it.
+      SHIP — SVG placeholder built inline for zero dependencies.
+      Proportions nod to a post-Panamax container vessel:
+      long hull, stacked containers midships, bridge castle aft, single funnel.
     -->
     <div class="ship-wrap" id="ship">
-      <svg viewBox="0 0 240 600" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto" aria-label="Container ship, bird's-eye view, sailing upward">
+      <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
+        <!-- Water reflection smudge -->
+        <ellipse cx="300" cy="188" rx="260" ry="6" fill="var(--c-trench)" opacity="0.4"/>
 
-        <!-- ============================================================
-             BOW WAVE — white "V" of foam spreading forward at the bow,
-             which is now at the TOP of the SVG. Foam fans outward
-             (and forward = upward off the bow tip).
-        ============================================================ -->
-        <g opacity="0.9">
-          <path d="M 70 45 Q 55 20 40 0 L 52 0 Q 67 18 82 35 Z" fill="#ffffff" opacity="0.35"/>
-          <path d="M 170 45 Q 185 20 200 0 L 188 0 Q 173 18 158 35 Z" fill="#ffffff" opacity="0.35"/>
-          <path d="M 82 30 Q 72 15 62 0 L 72 0 Q 80 12 90 22 Z" fill="#ffffff" opacity="0.5"/>
-          <path d="M 158 30 Q 168 15 178 0 L 168 0 Q 160 12 150 22 Z" fill="#ffffff" opacity="0.5"/>
-          <!-- Foam cushion riding on the bow -->
-          <ellipse cx="120" cy="12" rx="35" ry="6" fill="#ffffff" opacity="0.55"/>
-          <!-- Spray dots -->
-          <g fill="#ffffff" opacity="0.55">
-            <circle cx="95"  cy="5"  r="1"/>
-            <circle cx="108" cy="2"  r="0.8"/>
-            <circle cx="135" cy="3"  r="1"/>
-            <circle cx="148" cy="6"  r="0.8"/>
-          </g>
-        </g>
+        <!-- Hull — dark with a rust waterline stripe -->
+        <path d="M 40,150 L 560,150 L 540,178 L 60,178 Z" fill="#1a1f2e"/>
+        <rect x="40" y="148" width="520" height="4" fill="#c96f4a"/>
+        <!-- Bulbous bow hint -->
+        <path d="M 555,160 Q 572,165 560,178 L 540,178 Z" fill="#0f1420"/>
 
-        <!-- Jackstaff at the bow tip -->
-        <rect x="118" y="18" width="4" height="5" fill="#c96f4a"/>
+        <!-- Deck line -->
+        <rect x="55" y="142" width="490" height="8" fill="#2a3142"/>
 
-        <!-- ============================================================
-             HULL — pointed bow at TOP, flat stern at BOTTOM
-        ============================================================ -->
-        <!-- Hull shadow offset -->
-        <path d="M 78 515
-                 L 162 515
-                 L 170 485
-                 L 170 120
-                 Q 170 40 120 15
-                 Q 70 40 70 120
-                 L 70 485 Z"
-              fill="#050d18" opacity="0.55" transform="translate(3 5)"/>
-
-        <!-- Main hull -->
-        <path d="M 78 515
-                 L 162 515
-                 L 170 485
-                 L 170 120
-                 Q 170 40 120 15
-                 Q 70 40 70 120
-                 L 70 485 Z"
-              fill="#1a1f2e"/>
-
-        <!-- Stern transom highlight -->
-        <rect x="78" y="511" width="84" height="4" fill="#2a3142"/>
-
-        <!-- Rust waterline outline -->
-        <path d="M 78 515
-                 L 162 515
-                 L 170 485
-                 L 170 120
-                 Q 170 40 120 15
-                 Q 70 40 70 120
-                 L 70 485 Z"
-              fill="none" stroke="#c96f4a" stroke-width="1.8"/>
-
-        <!-- ============================================================
-             FORECASTLE — forward deck just aft of the bow tip
-        ============================================================ -->
-        <rect x="75" y="102" width="90" height="4" fill="#0f1420"/>
-        <rect x="82" y="108" width="76" height="42" fill="#2a3142"/>
-        <circle cx="100" cy="128" r="3" fill="#c96f4a"/>
-        <circle cx="140" cy="128" r="3" fill="#c96f4a"/>
-        <rect x="105" y="114" width="30" height="26" fill="#1a1f2e" stroke="#3a4a5c" stroke-width="0.5"/>
-        <circle cx="90"  cy="144" r="1.5" fill="#0f1420"/>
-        <circle cx="150" cy="144" r="1.5" fill="#0f1420"/>
-
-        <!-- Coaming band between forecastle and cargo deck -->
-        <rect x="75" y="154" width="90" height="3" fill="#0f1420"/>
-
-        <!-- ============================================================
-             CONTAINER DECK — 12 bays, midship stretch of colourful boxes
-        ============================================================ -->
+        <!-- Container stacks — varied colors, slight grid -->
         <g id="containers">
-          <g transform="translate(78 160)">
-            <rect x="0"  y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="15" y="0" width="14" height="18" fill="#2d5f7a"/>
-            <rect x="30" y="0" width="14" height="18" fill="#8a9c3e"/>
-            <rect x="45" y="0" width="14" height="18" fill="#d4a574"/>
-            <rect x="60" y="0" width="14" height="18" fill="#3a4a5c"/>
-            <rect x="75" y="0" width="14" height="18" fill="#c96f4a"/>
-          </g>
-          <g transform="translate(78 180)">
-            <rect x="0"  y="0" width="14" height="18" fill="#d4a574"/>
-            <rect x="15" y="0" width="14" height="18" fill="#8a9c3e"/>
-            <rect x="30" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="45" y="0" width="14" height="18" fill="#2d5f7a"/>
-            <rect x="60" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="75" y="0" width="14" height="18" fill="#3a4a5c"/>
-          </g>
-          <g transform="translate(78 200)">
-            <rect x="0"  y="0" width="14" height="18" fill="#3a4a5c"/>
-            <rect x="15" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="30" y="0" width="14" height="18" fill="#d4a574"/>
-            <rect x="45" y="0" width="14" height="18" fill="#8a9c3e"/>
-            <rect x="60" y="0" width="14" height="18" fill="#2d5f7a"/>
-            <rect x="75" y="0" width="14" height="18" fill="#c96f4a"/>
-          </g>
-          <g transform="translate(78 220)">
-            <rect x="0"  y="0" width="14" height="18" fill="#2d5f7a"/>
-            <rect x="15" y="0" width="14" height="18" fill="#d4a574"/>
-            <rect x="30" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="45" y="0" width="14" height="18" fill="#3a4a5c"/>
-            <rect x="60" y="0" width="14" height="18" fill="#8a9c3e"/>
-            <rect x="75" y="0" width="14" height="18" fill="#d4a574"/>
-          </g>
-          <g transform="translate(78 240)">
-            <rect x="0"  y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="15" y="0" width="14" height="18" fill="#3a4a5c"/>
-            <rect x="30" y="0" width="14" height="18" fill="#2d5f7a"/>
-            <rect x="45" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="60" y="0" width="14" height="18" fill="#d4a574"/>
-            <rect x="75" y="0" width="14" height="18" fill="#8a9c3e"/>
-          </g>
-          <g transform="translate(78 260)">
-            <rect x="0"  y="0" width="14" height="18" fill="#8a9c3e"/>
-            <rect x="15" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="30" y="0" width="14" height="18" fill="#3a4a5c"/>
-            <rect x="45" y="0" width="14" height="18" fill="#d4a574"/>
-            <rect x="60" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="75" y="0" width="14" height="18" fill="#2d5f7a"/>
-          </g>
-          <g transform="translate(78 280)">
-            <rect x="0"  y="0" width="14" height="18" fill="#d4a574"/>
-            <rect x="15" y="0" width="14" height="18" fill="#2d5f7a"/>
-            <rect x="30" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="45" y="0" width="14" height="18" fill="#8a9c3e"/>
-            <rect x="60" y="0" width="14" height="18" fill="#3a4a5c"/>
-            <rect x="75" y="0" width="14" height="18" fill="#d4a574"/>
-          </g>
-          <g transform="translate(78 300)">
-            <rect x="0"  y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="15" y="0" width="14" height="18" fill="#d4a574"/>
-            <rect x="30" y="0" width="14" height="18" fill="#2d5f7a"/>
-            <rect x="45" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="60" y="0" width="14" height="18" fill="#3a4a5c"/>
-            <rect x="75" y="0" width="14" height="18" fill="#8a9c3e"/>
-          </g>
-          <g transform="translate(78 320)">
-            <rect x="0"  y="0" width="14" height="18" fill="#3a4a5c"/>
-            <rect x="15" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="30" y="0" width="14" height="18" fill="#8a9c3e"/>
-            <rect x="45" y="0" width="14" height="18" fill="#2d5f7a"/>
-            <rect x="60" y="0" width="14" height="18" fill="#d4a574"/>
-            <rect x="75" y="0" width="14" height="18" fill="#c96f4a"/>
-          </g>
-          <g transform="translate(78 340)">
-            <rect x="0"  y="0" width="14" height="18" fill="#2d5f7a"/>
-            <rect x="15" y="0" width="14" height="18" fill="#d4a574"/>
-            <rect x="30" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="45" y="0" width="14" height="18" fill="#3a4a5c"/>
-            <rect x="60" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="75" y="0" width="14" height="18" fill="#8a9c3e"/>
-          </g>
-          <g transform="translate(78 360)">
-            <rect x="0"  y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="15" y="0" width="14" height="18" fill="#8a9c3e"/>
-            <rect x="30" y="0" width="14" height="18" fill="#d4a574"/>
-            <rect x="45" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="60" y="0" width="14" height="18" fill="#2d5f7a"/>
-            <rect x="75" y="0" width="14" height="18" fill="#3a4a5c"/>
-          </g>
-          <g transform="translate(78 380)">
-            <rect x="0"  y="0" width="14" height="18" fill="#d4a574"/>
-            <rect x="15" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="30" y="0" width="14" height="18" fill="#3a4a5c"/>
-            <rect x="45" y="0" width="14" height="18" fill="#8a9c3e"/>
-            <rect x="60" y="0" width="14" height="18" fill="#c96f4a"/>
-            <rect x="75" y="0" width="14" height="18" fill="#2d5f7a"/>
-          </g>
+          <!-- Row 1 (bottom) -->
+          <rect x="75"  y="110" width="48" height="32" fill="#c96f4a"/>
+          <rect x="125" y="110" width="48" height="32" fill="#2d5f7a"/>
+          <rect x="175" y="110" width="48" height="32" fill="#8a9c3e"/>
+          <rect x="225" y="110" width="48" height="32" fill="#d4a574"/>
+          <rect x="275" y="110" width="48" height="32" fill="#2d5f7a"/>
+          <rect x="325" y="110" width="48" height="32" fill="#c96f4a"/>
+          <rect x="375" y="110" width="48" height="32" fill="#3a4a5c"/>
+          <rect x="425" y="110" width="48" height="32" fill="#8a9c3e"/>
 
-          <!-- Grid lines between bays -->
-          <g stroke="#000" stroke-opacity="0.4" stroke-width="0.4">
-            <line x1="78" y1="179" x2="167" y2="179"/>
-            <line x1="78" y1="199" x2="167" y2="199"/>
-            <line x1="78" y1="219" x2="167" y2="219"/>
-            <line x1="78" y1="239" x2="167" y2="239"/>
-            <line x1="78" y1="259" x2="167" y2="259"/>
-            <line x1="78" y1="279" x2="167" y2="279"/>
-            <line x1="78" y1="299" x2="167" y2="299"/>
-            <line x1="78" y1="319" x2="167" y2="319"/>
-            <line x1="78" y1="339" x2="167" y2="339"/>
-            <line x1="78" y1="359" x2="167" y2="359"/>
-            <line x1="78" y1="379" x2="167" y2="379"/>
-          </g>
-          <g stroke="#000" stroke-opacity="0.3" stroke-width="0.3">
-            <line x1="93"  y1="160" x2="93"  y2="398"/>
-            <line x1="108" y1="160" x2="108" y2="398"/>
-            <line x1="123" y1="160" x2="123" y2="398"/>
-            <line x1="138" y1="160" x2="138" y2="398"/>
-            <line x1="153" y1="160" x2="153" y2="398"/>
+          <!-- Row 2 -->
+          <rect x="95"  y="80"  width="48" height="28" fill="#2d5f7a"/>
+          <rect x="145" y="80"  width="48" height="28" fill="#d4a574"/>
+          <rect x="195" y="80"  width="48" height="28" fill="#c96f4a"/>
+          <rect x="245" y="80"  width="48" height="28" fill="#3a4a5c"/>
+          <rect x="295" y="80"  width="48" height="28" fill="#8a9c3e"/>
+          <rect x="345" y="80"  width="48" height="28" fill="#2d5f7a"/>
+          <rect x="395" y="80"  width="48" height="28" fill="#c96f4a"/>
+
+          <!-- Row 3 (top, fewer) -->
+          <rect x="125" y="55"  width="48" height="23" fill="#d4a574"/>
+          <rect x="195" y="55"  width="48" height="23" fill="#3a4a5c"/>
+          <rect x="265" y="55"  width="48" height="23" fill="#c96f4a"/>
+          <rect x="335" y="55"  width="48" height="23" fill="#2d5f7a"/>
+
+          <!-- Thin horizontal lines to suggest container ridges -->
+          <g stroke="#000" stroke-opacity="0.18" stroke-width="0.5">
+            <line x1="75" y1="125" x2="475" y2="125"/>
+            <line x1="95" y1="94"  x2="445" y2="94"/>
+            <line x1="125" y1="66" x2="385" y2="66"/>
           </g>
         </g>
 
-        <!-- ============================================================
-             AFT SUPERSTRUCTURE — bridge + funnel, near the STERN (bottom)
-        ============================================================ -->
-        <rect x="75" y="402" width="90" height="3" fill="#0f1420"/>
-
-        <!-- Funnel (forward of the bridge) -->
-        <rect x="108" y="410" width="24" height="30" fill="#c96f4a"/>
-        <rect x="108" y="410" width="24" height="5" fill="#1a1f2e"/>
-        <text x="120" y="431" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#f4ebd9">M</text>
-        <line x1="120" y1="410" x2="120" y2="402" stroke="#1a1f2e" stroke-width="1.5"/>
-        <line x1="113" y1="404" x2="127" y2="404" stroke="#1a1f2e" stroke-width="0.8"/>
-
-        <!-- Bridge castle (white superstructure) -->
-        <rect x="88" y="450" width="64" height="54" fill="#e8e4db"/>
-        <rect x="88" y="499" width="64" height="5" fill="#c96f4a"/>
-        <rect x="72" y="476" width="16" height="14" fill="#e8e4db"/>
-        <rect x="152" y="476" width="16" height="14" fill="#e8e4db"/>
-        <!-- Forward-facing bridge windows (near top of the castle, looking toward bow) -->
-        <g fill="#0a2340">
-          <rect x="94"  y="455" width="8" height="5"/>
-          <rect x="104" y="455" width="8" height="5"/>
-          <rect x="114" y="455" width="8" height="5"/>
-          <rect x="124" y="455" width="8" height="5"/>
-          <rect x="134" y="455" width="8" height="5"/>
-          <rect x="144" y="455" width="4" height="5"/>
-        </g>
-        <line x1="88" y1="470" x2="152" y2="470" stroke="#0f1420" stroke-width="0.6"/>
-
-        <!-- ============================================================
-             STERN WAKE — churn behind the transom, fans outward/downward
-        ============================================================ -->
-        <g opacity="0.9">
-          <ellipse cx="120" cy="522" rx="42" ry="10" fill="#ffffff" opacity="0.55"/>
-          <ellipse cx="120" cy="528" rx="55" ry="18" fill="#ffffff" opacity="0.42"/>
-          <!-- Outer diverging trails -->
-          <path d="M 80 520 Q 60 560 40 600 L 30 600 Q 45 560 70 505 Z" fill="#ffffff" opacity="0.22"/>
-          <path d="M 160 520 Q 180 560 200 600 L 210 600 Q 195 560 170 505 Z" fill="#ffffff" opacity="0.22"/>
-          <path d="M 95 540 Q 85 570 75 600 L 67 600 Q 77 570 90 530 Z" fill="#ffffff" opacity="0.32"/>
-          <path d="M 145 540 Q 155 570 165 600 L 173 600 Q 163 570 150 530 Z" fill="#ffffff" opacity="0.32"/>
-          <!-- Prop wash dots -->
-          <g fill="#ffffff" opacity="0.4">
-            <circle cx="95"  cy="545" r="1.2"/>
-            <circle cx="110" cy="558" r="1"/>
-            <circle cx="130" cy="562" r="1"/>
-            <circle cx="145" cy="548" r="1.2"/>
-            <circle cx="120" cy="570" r="1.4"/>
-            <circle cx="108" cy="575" r="0.8"/>
-            <circle cx="135" cy="578" r="0.8"/>
-          </g>
+        <!-- Bridge castle (aft) -->
+        <rect x="470" y="75"  width="58" height="67" fill="#e8e4db"/>
+        <rect x="470" y="75"  width="58" height="8"  fill="#c96f4a"/>
+        <!-- Bridge windows -->
+        <g fill="var(--c-deep)">
+          <rect x="476" y="92"  width="10" height="6"/>
+          <rect x="490" y="92"  width="10" height="6"/>
+          <rect x="504" y="92"  width="10" height="6"/>
+          <rect x="518" y="92"  width="6"  height="6"/>
+          <rect x="476" y="104" width="10" height="5"/>
+          <rect x="490" y="104" width="10" height="5"/>
+          <rect x="504" y="104" width="10" height="5"/>
         </g>
 
+        <!-- Funnel -->
+        <rect x="492" y="48" width="18" height="28" fill="#c96f4a"/>
+        <rect x="492" y="48" width="18" height="6"  fill="#1a1f2e"/>
+        <!-- Funnel insignia: simple "M" -->
+        <text x="501" y="70" text-anchor="middle" font-family="Georgia, serif" font-size="10" font-weight="bold" fill="#f4ebd9">M</text>
+
+        <!-- Mast with antennae -->
+        <line x1="460" y1="75" x2="460" y2="30" stroke="#1a1f2e" stroke-width="1.5"/>
+        <line x1="452" y1="45" x2="468" y2="45" stroke="#1a1f2e" stroke-width="1"/>
+        <circle cx="460" cy="28" r="2" fill="#c96f4a"/>
+
+        <!-- Bow detail: anchor hint -->
+        <rect x="548" y="160" width="6" height="10" fill="#1a1f2e"/>
+
+        <!-- Port-side shadow under deck -->
+        <rect x="60" y="150" width="480" height="3" fill="#000" opacity="0.35"/>
+
+        <!-- Bow wake -->
+        <path d="M 555,172 Q 585,170 595,178 Q 580,180 560,178 Z" fill="#f4ebd9" opacity="0.6"/>
+        <path d="M 30,172 Q 10,170 0,178 Q 20,180 45,178 Z" fill="#f4ebd9" opacity="0.4"/>
       </svg>
     </div>
 
     <!-- Scroll cue -->
-    <div class="scroll-cue absolute bottom-6 right-6 md:right-12 z-30 flex flex-col items-end gap-2 text-bone/70">
+    <div class="scroll-cue absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 text-deep/70">
       <div class="font-mono text-[0.65rem] tracking-[0.3em] uppercase">Descend</div>
       <svg width="12" height="18" viewBox="0 0 12 18" fill="none"><path d="M6 1v15m0 0l-5-5m5 5l5-5" stroke="currentColor" stroke-width="1.2"/></svg>
     </div>
-
-    <!--
-      ========================================================================
-      DESTINATION — the actual website, revealed IN THE WAKE of the ship.
-      Lives inside the same pinned stage. GSAP fades this in as the ship
-      passes through and over the content.
-      ========================================================================
-    -->
-    <div class="destination" id="destination">
-      <div class="h-full w-full overflow-y-auto">
-        <div class="px-6 md:px-12 py-20 md:py-28 max-w-6xl mx-auto">
-
-          <div class="flex items-baseline justify-between mb-14 md:mb-20">
-            <div class="chapter-tag">Chapter II · The Destination</div>
-            <div class="big-num text-brass/30 text-[5rem] md:text-[8rem] select-none">02</div>
-          </div>
-
-          <h2 class="font-display font-light text-bone tracking-mega leading-[0.95]
-                     text-[clamp(2.2rem,5.5vw,4.8rem)] max-w-4xl">
-            Where the water
-            <span class="italic font-normal text-brass">turns</span>
-            to ink, the work begins.
-          </h2>
-
-          <div class="rule-thin my-12 md:my-16"></div>
-
-          <div class="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-14">
-
-            <aside class="md:col-span-3 space-y-6">
-              <div>
-                <div class="chapter-tag mb-2">§ 01</div>
-                <div class="font-display text-bone text-xl">On Cargo</div>
-              </div>
-              <p class="font-mono text-xs text-bone/50 leading-relaxed">
-                Filed from the wheelhouse, 03:14 ship's time.
-              </p>
-            </aside>
-
-            <div class="md:col-span-4 space-y-5 font-display text-bone/85 text-[1.02rem] leading-[1.7]">
-              <p class="first-letter:float-left first-letter:font-display first-letter:font-medium first-letter:text-6xl first-letter:leading-[0.85] first-letter:mr-2 first-letter:mt-1 first-letter:text-brass">
-                Every voyage is a small act of faith — a wager against weather, ledger, and time. The Meridian carries twenty-two thousand containers across ocean corridors older than any nation she flies.
-              </p>
-              <p>
-                We do not move boxes. We move the promises packed inside them: grain for Lagos, turbines for Dakar, medicine for ports whose names our grandfathers never learned to spell.
-              </p>
-            </div>
-
-            <div class="md:col-span-5 space-y-5 font-display text-bone/75 text-[0.98rem] leading-[1.7]">
-              <p>
-                The route from <span class="text-brass font-medium">Rotterdam</span> to <span class="text-brass font-medium">Singapore</span> crosses four seas, one canal, and a thousand quiet hours where nothing happens but the low hum of the engine and the turning of pages in the mess.
-              </p>
-              <div class="grid grid-cols-3 gap-5 pt-5 border-t border-bone/10">
-                <div>
-                  <div class="big-num text-brass text-3xl">17</div>
-                  <div class="font-mono text-[0.62rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Active vessels</div>
-                </div>
-                <div>
-                  <div class="big-num text-brass text-3xl">142</div>
-                  <div class="font-mono text-[0.62rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Ports served</div>
-                </div>
-                <div>
-                  <div class="big-num text-brass text-3xl">29y</div>
-                  <div class="font-mono text-[0.62rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Since launch</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-16 md:mt-24 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 border-t border-bone/15 pt-10">
-            <div>
-              <div class="chapter-tag mb-3">Book passage</div>
-              <p class="font-display text-bone text-2xl md:text-3xl max-w-xl leading-tight">
-                Request a manifest slot on the next eastbound crossing.
-              </p>
-            </div>
-            <button class="btn-voyage" type="button">
-              Get Started
-              <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5h12m0 0L9 1m4 4L9 9" stroke="currentColor" stroke-width="1.3"/></svg>
-            </button>
-          </div>
-
-          <div class="mt-20 pt-8 border-t border-bone/10 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 font-mono text-[0.7rem] tracking-[0.22em] uppercase text-bone/40">
-            <div>© MMXXVI · Meridian Line Shipping Co.</div>
-            <div class="flex gap-8">
-              <a href="#" class="hover:text-bone transition">Privacy</a>
-              <a href="#" class="hover:text-bone transition">Manifest</a>
-              <a href="#" class="hover:text-bone transition">Careers</a>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
   </section>
 
+  <!--
+    ========================================================================
+    CONTENT — THE DESTINATION
+    Deep-blue themed. Editorial two-column layout. CTA.
+    ========================================================================
+  -->
+  <section id="content" class="vignette relative py-28 md:py-40 px-6 md:px-12">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- Chapter tag + big editorial number -->
+      <div class="flex items-baseline justify-between mb-16 md:mb-24">
+        <div class="chapter-tag">Chapter II · The Destination</div>
+        <div class="big-num text-brass/30 text-[6rem] md:text-[9rem] select-none">02</div>
+      </div>
+
+      <!-- Headline -->
+      <h2 class="font-display font-light text-bone tracking-mega leading-[0.95]
+                 text-[clamp(2.4rem,6.5vw,5.5rem)] max-w-4xl">
+        Where the water
+        <span class="italic font-normal text-brass">turns</span>
+        to ink, the work begins.
+      </h2>
+
+      <!-- Thin rule -->
+      <div class="rule-thin my-16 md:my-20"></div>
+
+      <!-- Two-column editorial body -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
+
+        <!-- Left: label column -->
+        <aside class="md:col-span-3 space-y-6">
+          <div>
+            <div class="chapter-tag mb-2">§ 01</div>
+            <div class="font-display text-bone text-xl">On Cargo</div>
+          </div>
+          <p class="font-mono text-xs text-bone/50 leading-relaxed">
+            Filed from the wheelhouse, 03:14 ship's time. Transcribed by the second mate.
+          </p>
+        </aside>
+
+        <!-- Middle column -->
+        <div class="md:col-span-4 space-y-5 font-display text-bone/85 text-[1.05rem] leading-[1.7]">
+          <p class="first-letter:float-left first-letter:font-display first-letter:font-medium first-letter:text-6xl first-letter:leading-[0.85] first-letter:mr-2 first-letter:mt-1 first-letter:text-brass">
+            Every voyage is a small act of faith — a wager against weather, ledger, and time. The Meridian carries twenty-two thousand containers across ocean corridors older than any nation she flies.
+          </p>
+          <p>
+            We do not move boxes. We move the promises packed inside them: grain for Lagos, turbines for Dakar, medicine for ports whose names our grandfathers never learned to spell.
+          </p>
+        </div>
+
+        <!-- Right column -->
+        <div class="md:col-span-5 space-y-5 font-display text-bone/75 text-[1rem] leading-[1.75]">
+          <p>
+            The route from <span class="text-brass font-medium">Rotterdam</span> to <span class="text-brass font-medium">Singapore</span> crosses four seas, one canal, and a thousand quiet hours where nothing happens but the low hum of the engine and the turning of pages in the mess. This is the texture of the trade: long stretches of ordinary, punctuated by the exacting choreography of port.
+          </p>
+          <p>
+            Meridian Line keeps a fleet of seventeen vessels. They sail under a plain white flag with a single rust-coloured stripe — our reminder that the work is unglamorous, dependable, and absolutely necessary.
+          </p>
+          <!-- Factoids -->
+          <div class="grid grid-cols-3 gap-6 pt-6 border-t border-bone/10">
+            <div>
+              <div class="big-num text-brass text-4xl">17</div>
+              <div class="font-mono text-[0.65rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Active vessels</div>
+            </div>
+            <div>
+              <div class="big-num text-brass text-4xl">142</div>
+              <div class="font-mono text-[0.65rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Ports served</div>
+            </div>
+            <div>
+              <div class="big-num text-brass text-4xl">29y</div>
+              <div class="font-mono text-[0.65rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Since launch</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA block -->
+      <div class="mt-24 md:mt-32 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 border-t border-bone/15 pt-12">
+        <div>
+          <div class="chapter-tag mb-3">Book passage</div>
+          <p class="font-display text-bone text-2xl md:text-3xl max-w-xl leading-tight">
+            Request a manifest slot on the next eastbound crossing.
+          </p>
+        </div>
+        <button class="btn-voyage" type="button">
+          Get Started
+          <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5h12m0 0L9 1m4 4L9 9" stroke="currentColor" stroke-width="1.3"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!--
+    ========================================================================
+    FOOTER — small, typographic, punctuation only
+    ========================================================================
+  -->
+  <footer class="relative px-6 md:px-12 py-10 border-t border-bone/10 bg-trench">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4 font-mono text-[0.7rem] tracking-[0.22em] uppercase text-bone/40">
+      <div>© MMXXVI · Meridian Line Shipping Co.</div>
+      <div class="flex gap-8">
+        <a href="#" class="hover:text-bone transition">Privacy</a>
+        <a href="#" class="hover:text-bone transition">Manifest</a>
+        <a href="#" class="hover:text-bone transition">Careers</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scroll-linked animation logic -->
   <script src="script.js"></script>
 </body>
 </html>
