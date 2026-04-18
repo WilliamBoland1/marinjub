@@ -1,76 +1,66 @@
 /* ============================================================================
- * Meridian Line — Ship-Scroll
+ * Meridian Line — Ship-Scroll (Bird's-Eye View)
  * ----------------------------------------------------------------------------
- * Scroll-linked hero animation using GSAP + ScrollTrigger.
+ * The hero shows open ocean viewed from directly above. A container ship
+ * (rendered as a tall top-down SVG) sits with its bow peeking into the
+ * bottom of the viewport; as the user scrolls, the ship sails upward on
+ * screen, revealing its full length before disappearing off the top.
  *
  * Behaviour
  * ---------
- * • Hero section is pinned for the duration of the voyage animation.
- * • Ship translates vertically from its starting position (bottom of viewport)
- *   up and past the top edge. The motion is "scrubbed" — tied 1:1 to scroll
- *   progress so the user controls the pace.
- * • Background shifts from a bright morning palette (sky → horizon → sea)
- *   into the deep abyss that the content section sits in, producing a seamless
- *   hand-off to Chapter II.
- * • Decorative elements (wave layers, headline copy, scroll cue) fade and
- *   drift to emphasise the descent.
+ * • Hero section is pinned for the duration of the voyage.
+ * • Ship wrapper translates upward by ~165vh — enough distance for the
+ *   entire ship (stern + wake) to clear the viewport, since most of the
+ *   SVG starts below the fold.
+ * • Water colour darkens from open-sea blue → deep → abyss, handing off
+ *   seamlessly to the content section.
+ * • Water texture layers drift slightly to sell the sense of motion past
+ *   the viewer rather than the ship moving alone.
+ * • Headline and scroll cue fade as the viewer descends.
  *
  * Customisation
  * -------------
- * • Tweak PIN_DURATION to shorten/lengthen the scroll distance required to
- *   complete the voyage.
- * • Palette stops are defined in CSS custom properties (see index.html) and
- *   referenced here by name — change them in one place.
+ * • PIN_DURATION controls how much scroll distance the animation consumes.
+ * • SHIP_TRAVEL_VH controls how far up the ship moves — increase if your
+ *   ship SVG is even taller, decrease for a shorter hull.
  * ========================================================================== */
 
 (function () {
   'use strict';
 
-  // Respect users who prefer reduced motion — deliver a static, readable page.
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Wait for GSAP to be available (loaded via CDN in the head).
   if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
     console.warn('[Meridian] GSAP or ScrollTrigger failed to load.');
     return;
   }
-
   gsap.registerPlugin(ScrollTrigger);
 
   /* --------------------------------------------------------------------------
    * Configuration
    * ------------------------------------------------------------------------ */
-  // How much scroll distance the pinned hero consumes.
-  // "+=150%" means the user must scroll 1.5× the viewport height to complete
-  // the voyage animation. Increase for a slower, more cinematic scrub.
-  const PIN_DURATION = '+=150%';
+  const PIN_DURATION   = '+=170%';  // scroll distance the pin consumes
+  const SHIP_TRAVEL_VH = -165;      // how far up the ship wrapper travels
 
-  // Palette — read from CSS custom properties so the theme stays in sync.
+  // Palette pulled from CSS custom properties so the theme stays in sync.
   const css = getComputedStyle(document.documentElement);
   const palette = {
-    surface: css.getPropertyValue('--c-surface').trim() || '#a9c8d8',
-    horizon: css.getPropertyValue('--c-horizon').trim() || '#5887a3',
-    deep:    css.getPropertyValue('--c-deep').trim()    || '#1a3a5c',
-    abyss:   css.getPropertyValue('--c-abyss').trim()   || '#0a1628',
-    trench:  css.getPropertyValue('--c-trench').trim()  || '#050b17',
+    openSea: css.getPropertyValue('--c-openSea').trim() || '#123558',
+    deep:    css.getPropertyValue('--c-deep').trim()    || '#0a2340',
+    abyss:   css.getPropertyValue('--c-abyss').trim()   || '#071829',
+    trench:  css.getPropertyValue('--c-trench').trim()  || '#030c16',
   };
 
-  /* --------------------------------------------------------------------------
-   * Reduced-motion fallback
-   * Display the hero as-is without pinning or scrubbing.
-   * ------------------------------------------------------------------------ */
-  if (prefersReduced) {
-    return;
-  }
+  if (prefersReduced) return;
 
   /* --------------------------------------------------------------------------
-   * Main scroll-triggered timeline
+   * Element refs
    * ------------------------------------------------------------------------ */
   const hero     = document.querySelector('#hero');
   const ship     = document.querySelector('#ship');
   const headline = document.querySelector('.hero-headline');
-  const waves    = document.querySelectorAll('#hero .wave');
-  const haze     = document.querySelector('#hero .horizon-haze');
+  const texture  = document.querySelector('.water-texture');
+  const streaks  = document.querySelector('.water-streaks');
   const cue      = document.querySelector('.scroll-cue');
 
   if (!hero || !ship) {
@@ -78,7 +68,9 @@
     return;
   }
 
-  // Build a timeline attached to a ScrollTrigger that pins the hero.
+  /* --------------------------------------------------------------------------
+   * Scroll-linked timeline — pins the hero and scrubs all effects together.
+   * ------------------------------------------------------------------------ */
   const tl = gsap.timeline({
     defaults: { ease: 'none' },
     scrollTrigger: {
@@ -86,65 +78,64 @@
       start:   'top top',
       end:     PIN_DURATION,
       pin:     true,
-      scrub:   0.6,          // slight smoothing on the scrub
+      scrub:   0.6,
       anticipatePin: 1,
-      // markers: true,      // uncomment while debugging
+      // markers: true, // uncomment while tuning
     },
   });
 
-  // -- Background gradient: shift from morning to abyss --------------------
-  //
-  // We animate the `background` property directly. GSAP tweens the gradient
-  // stops (it understands the syntax), producing a smooth colour transition
-  // rather than a hard swap.
+  // -- Background: open sea → deeper water → abyss --------------------------
+  // The radial glints fade out as we descend, giving a sense of sinking
+  // below the sunlit surface layer into darker water.
   tl.to(hero, {
-    background: `radial-gradient(ellipse at 50% 110%, rgba(5,11,23,0.9) 0%, transparent 70%),
-                 linear-gradient(180deg, ${palette.deep} 0%, ${palette.abyss} 55%, ${palette.trench} 100%)`,
+    background:
+      `radial-gradient(ellipse 80% 60% at 20% 85%, rgba(70,120,160,0.05) 0%, transparent 55%),
+       radial-gradient(ellipse 60% 50% at 85% 15%, rgba(5,15,28,0.5) 0%, transparent 60%),
+       linear-gradient(170deg, ${palette.deep} 0%, ${palette.abyss} 55%, ${palette.trench} 100%)`,
     duration: 1,
   }, 0);
 
-  // -- Ship: travel from bottom of viewport to above the top --------------
-  //
-  // Starting transform is handled by CSS (bottom: 8vh, translateX(-50%)).
-  // We translate it upward by roughly 120vh so it fully exits the viewport.
-  // A tiny horizontal drift adds parallax personality without feeling wobbly.
+  // -- Ship: sails up and out of frame --------------------------------------
+  // Wrapper starts with bottom: -75vh (bow visible), moves upward.
   tl.to(ship, {
-    y:     '-120vh',
-    x:     '-20px',
-    scale: 0.92,
+    y:       `${SHIP_TRAVEL_VH}vh`,
+    scale:   0.95,
     duration: 1,
   }, 0);
 
-  // -- Waves: drift downward and fade as we descend -----------------------
-  waves.forEach((wave, i) => {
-    tl.to(wave, {
-      y:       30 + i * 20,
-      opacity: 0.15,
+  // -- Water texture: drifts downward relative to the ship, reinforcing
+  //    the illusion that the viewer is moving with the vessel ------------
+  if (texture) {
+    tl.to(texture, {
+      backgroundPosition: '0px 400px',
+      opacity: 0.2,
       duration: 1,
     }, 0);
-  });
-
-  // -- Horizon haze: fades as the horizon itself disappears ---------------
-  if (haze) {
-    tl.to(haze, { opacity: 0, duration: 0.6 }, 0);
   }
-
-  // -- Headline: drifts up and fades ~40% into the scroll -----------------
-  if (headline) {
-    tl.to(headline, {
-      y:       -60,
-      opacity: 0,
-      duration: 0.5,
+  if (streaks) {
+    tl.to(streaks, {
+      y: 120,
+      opacity: 0.1,
+      duration: 1,
     }, 0);
   }
 
-  // -- Scroll cue: fades out almost immediately ---------------------------
+  // -- Headline: lifts and fades roughly half way through -------------------
+  if (headline) {
+    tl.to(headline, {
+      y:       -80,
+      opacity: 0,
+      duration: 0.55,
+    }, 0);
+  }
+
+  // -- Scroll cue: disappears almost immediately once scrolling starts ------
   if (cue) {
     tl.to(cue, { opacity: 0, duration: 0.15 }, 0);
   }
 
   /* --------------------------------------------------------------------------
-   * Responsive: rebuild on significant resize (e.g. orientation change)
+   * Rebuild on significant resize
    * ------------------------------------------------------------------------ */
   let resizeTimer;
   window.addEventListener('resize', () => {
@@ -153,19 +144,14 @@
   });
 
   /* --------------------------------------------------------------------------
-   * Content section: gentle reveal of the factoids and CTA on entry.
-   * Purely decorative — not scrubbed, just a one-shot fade-in.
+   * Content section: gentle one-shot reveals on entry
    * ------------------------------------------------------------------------ */
   gsap.from('#content h2', {
     y: 40,
     opacity: 0,
     duration: 1.1,
     ease: 'power3.out',
-    scrollTrigger: {
-      trigger: '#content h2',
-      start:   'top 80%',
-      once:    true,
-    },
+    scrollTrigger: { trigger: '#content h2', start: 'top 80%', once: true },
   });
 
   gsap.from('#content .grid > *', {
@@ -174,10 +160,6 @@
     duration: 0.9,
     stagger: 0.12,
     ease: 'power2.out',
-    scrollTrigger: {
-      trigger: '#content .grid',
-      start:   'top 75%',
-      once:    true,
-    },
+    scrollTrigger: { trigger: '#content .grid', start: 'top 75%', once: true },
   });
 })();
