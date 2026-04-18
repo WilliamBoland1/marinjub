@@ -45,15 +45,6 @@
   // the voyage animation. Increase for a slower, more cinematic scrub.
   const PIN_DURATION = '+=150%';
 
-  // Palette — read from CSS custom properties so the theme stays in sync.
-  const css = getComputedStyle(document.documentElement);
-  const palette = {
-    surface: '#bcdbea',  // lighter, more airy blue
-    horizon: '#6f9fbd',  // brighter mid-tone
-    deep:    '#244a73',  // slightly lifted contrast
-    abyss:   '#11233d',  // less crushed, more visible detail
-    trench:  '#0a1324',  // still dark, but not pitch black
-  };
 
   /* --------------------------------------------------------------------------
    * Reduced-motion fallback
@@ -98,8 +89,7 @@
   // stops (it understands the syntax), producing a smooth colour transition
   // rather than a hard swap.
   tl.to(hero, {
-    background: `radial-gradient(ellipse at 50% 110%, rgba(5,11,23,0.9) 0%, transparent 70%),
-                 linear-gradient(180deg, ${palette.deep} 0%, ${palette.abyss} 55%, ${palette.trench} 100%)`,
+    background: `linear-gradient(180deg, #1e1b4b 0%, #1e1b4b 100%)`,
     duration: 1,
   }, 0);
 
@@ -119,7 +109,7 @@
   waves.forEach((wave, i) => {
     tl.to(wave, {
       y:       30 + i * 20,
-      opacity: 0.15,
+      opacity: 0,
       duration: 1,
     }, 0);
   });

@@ -37,12 +37,12 @@
           deep:     'var(--c-deep)',
           abyss:    'var(--c-abyss)',
           trench:   'var(--c-trench)',
-          bone:     '#f4ebd9',
-          rust:     '#c96f4a',
-          brass:    '#d4a574',
-          bone:     '#f4ebd9',
-          rust:     '#c96f4a',
-          brass:    '#d4a574',
+          bone:     '#fff8e7',
+          rust:     '#f4845f',
+          brass:    '#f9c74f',
+          bone:     '#fff8e7',
+          rust:     '#f4845f',
+          brass:    '#f9c74f',
         },
         letterSpacing: {
           'mega': '-0.04em',
@@ -58,14 +58,14 @@
   -->
   <style>
     :root {
-      --c-surface: #d6effa;
-      --c-horizon: #8bb8d3;
-      --c-deep:    #3a6f9c;
-      --c-abyss:   #1a3554;
-      --c-trench:  #0f1e33;
-      --c-bone:    #f4ebd9;
-      --c-rust:    #c96f4a;
-      --c-brass:   #d4a574;
+      --c-surface: #fef3c7;
+      --c-horizon: #f97316;
+      --c-deep:    #dc2626;
+      --c-abyss:   #1e1b4b;
+      --c-trench:  #07030f;
+      --c-bone:    #fff8e7;
+      --c-rust:    #ff6b35;
+      --c-brass:   #ffd166;
     }
 
     html { scroll-behavior: auto; }  /* GSAP handles smoothness */
@@ -78,14 +78,16 @@
 
   .hero-bg {
     background:
-      radial-gradient(ellipse at 50% 110%, rgba(10,22,40,0.55) 0%, transparent 60%),
       linear-gradient(
         180deg,
-        var(--c-surface) 0%,
-        var(--c-horizon) 35%,
-        var(--c-deep) 65%,
-        var(--c-abyss) 85%,
-        var(--c-trench) 100%
+        #fef3c7 0%,
+        #fbbf24 10%,
+        #f97316 26%,
+        #dc2626 43%,
+        #f97316 50%,
+        #0ea5e9 59%,
+        #0369a1 73%,
+        #1e1b4b 100%
       );
     }
 
@@ -111,15 +113,14 @@
       background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.55'/></svg>");
     }
 
-    /* Horizon haze band — thin strip of mist where sky meets sea */
+    /* Sand dune — distant background element, sits behind the wave layers */
     .horizon-haze {
       position: absolute;
-      left: 0; right: 0;
+      left: -5%; right: -5%;
       top: 48%;
-      height: 90px;
-      background: linear-gradient(180deg, transparent, rgba(244,235,217,0.12), transparent);
+      height: 240px;
       pointer-events: none;
-      filter: blur(2px);
+      z-index: 1;
     }
 
     /* Parallax wave layers */
@@ -134,11 +135,12 @@
     .ship-wrap {
       position: absolute;
       left: 50%;
-      bottom: 8vh;
+      bottom: 14vh;
       transform: translateX(-50%);
       width: min(560px, 72vw);
       will-change: transform;
       filter: drop-shadow(0 30px 40px rgba(5,11,23,0.55));
+      z-index: 10;
     }
 
     /* Ship gently bobs — compounds with GSAP scroll transform */
@@ -219,7 +221,7 @@
     /* Section with vignette */
     .vignette {
       background:
-        radial-gradient(ellipse at 50% 0%, rgba(26,58,92,0.35) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 0%, rgba(20,5,60,0.4) 0%, transparent 55%),
         var(--c-abyss);
     }
 
@@ -244,68 +246,113 @@
     Pinned. Ship translates from bottom → top. Background shifts to abyss.
     ========================================================================
   -->
+
+  
   <section id="hero" class="relative w-full h-screen overflow-hidden hero-bg">
 
-    <!-- Top ticker: "latest dispatches from sea" -->
+    <!-- 
     <div class="absolute top-0 left-0 right-0 z-20 border-b border-white/10 bg-black/5 backdrop-blur-sm overflow-hidden">
       <div class="py-2.5 overflow-hidden">
         <div class="ticker-track font-mono text-[0.7rem] tracking-[0.25em] uppercase text-bone/80">
-          <span>◆ 47°36'N 008°32'W &nbsp;·&nbsp; MV Meridian en route Rotterdam → Singapore</span>
-          <span>◆ Beaufort 3 · swell 1.2m · visibility clear</span>
-          <span>◆ Est. arrival 14 days 06 hours</span>
-          <span>◆ Cargo manifest no. 22881-A</span>
-          <span>◆ 47°36'N 008°32'W &nbsp;·&nbsp; MV Meridian en route Rotterdam → Singapore</span>
-          <span>◆ Beaufort 3 · swell 1.2m · visibility clear</span>
-          <span>◆ Est. arrival 14 days 06 hours</span>
-          <span>◆ Cargo manifest no. 22881-A</span>
+          <span>◆ Størst grill gjør folk ville</span>
+          <span>◆ Ryktene sier at den så ut som bark</span>
+          <span>◆ Tenk på alle de fattige barna i...</span>
+          <span>◆ "MJØNDARN"</span>
+          <span>◆ Poleren og Keegen sett slåss</span>
+          <span>◆ Broiler - The Beginning</span>
+          <span>◆ Både kebabflekker og bukse fra SWAG</span>
+          <span>◆ Det er rave</span>
         </div>
       </div>
     </div>
+  -->
 
     <!-- Top-left masthead -->
     <header class="absolute top-14 left-0 right-0 z-20 px-6 md:px-12">
       <div class="flex items-start justify-between">
         <div>
-          <div class="chapter-tag text-bone/70">Est. MCMXCVII</div>
+          <div class="chapter-tag text-bone/70">Est. 2026</div>
           <h1 class="font-display text-2xl md:text-3xl font-medium text-bone tracking-mega leading-none mt-1">
-            Meridian<span class="italic font-light">/</span>Line
+            Første nettside
           </h1>
         </div>
         <nav class="hidden md:flex items-center gap-8 font-mono text-[0.72rem] tracking-[0.22em] uppercase text-bone/80">
-          <a href="#" class="hover:text-trench transition">Fleet</a>
-          <a href="#" class="hover:text-trench transition">Routes</a>
-          <a href="#" class="hover:text-trench transition">Manifest</a>
-          <a href="#" class="hover:text-trench transition">Contact</a>
+          <a href="#" class="hover:text-trench transition">Ting</a>
+          <a href="#" class="hover:text-trench transition">Tang</a>
+          <a href="#" class="hover:text-trench transition">Kokebok</a>
+          <a href="#" class="hover:text-trench transition">Mer</a>
         </nav>
       </div>
     </header>
 
     <!-- Hero headline: anchored top-center, over the sky -->
     <div class="hero-headline absolute top-[22%] left-0 right-0 z-10 px-6 md:px-12 text-center">
-      <div class="chapter-tag text-bone/70 mb-4">Chapter I · The Crossing</div>
+      <div class="chapter-tag text-bone/70 mb-4">Del I · Velkommen</div>
       <h2 class="font-display font-light text-bone tracking-mega leading-[0.9]
                  text-[clamp(2.8rem,9vw,7.5rem)]">
-        Twelve thousand <span class="italic font-normal scribble">nautical</span>
-        <br/>miles of patience.
+        Et ønske om<span class="italic font-normal scribble"> To is</span>
+        <br/>
       </h2>
       <p class="mt-6 max-w-xl mx-auto font-mono text-[0.78rem] md:text-xs tracking-[0.2em] uppercase text-deep/70">
-        Scroll to follow the MV Meridian into deep water.
+        Bla ned for å se mer.
       </p>
     </div>
 
-    <!-- Horizon haze -->
-    <div class="horizon-haze"></div>
+  <!-- Sand dune — distant background, behind all wave layers -->
+  <div class="horizon-haze">
+    <svg viewBox="0 0 1200 240" preserveAspectRatio="none" style="width:100%;height:100%;display:block;">
+      <!-- Far/pale dune crest (most distant, lightest) -->
+      <path d="M0,88 C160,44 360,82 560,54 C760,26 960,68 1200,44 L1200,240 L0,240 Z" fill="#f5e4a8" opacity="0.45"/>
+      <!-- Main dune body -->
+      <path d="M0,112 C220,64 450,108 680,76 C880,48 1060,92 1200,70 L1200,240 L0,240 Z" fill="#d9a840"/>
+      <!-- Dune front slope — darker for depth -->
+      <path d="M0,134 C260,98 520,134 770,102 C970,76 1110,116 1200,96 L1200,240 L0,240 Z" fill="#b88820" opacity="0.8"/>
+      <!-- Subtle dune-top grass tufts -->
+      <g fill="#8a6e10" opacity="0.35">
+        <path d="M180,104 C182,90 186,82 184,78 C188,82 192,88 190,104 Z"/>
+        <path d="M186,104 C188,86 193,76 191,72 C195,76 199,84 197,104 Z"/>
+        <path d="M420,80 C422,66 426,58 424,54 C428,58 432,64 430,80 Z"/>
+        <path d="M428,80 C430,62 435,52 433,48 C437,52 441,60 439,80 Z"/>
+        <path d="M710,70 C712,56 716,48 714,44 C718,48 722,54 720,70 Z"/>
+        <path d="M718,70 C720,52 725,42 723,38 C727,42 731,50 729,70 Z"/>
+        <path d="M950,84 C952,70 956,62 954,58 C958,62 962,68 960,84 Z"/>
+        <path d="M958,84 C960,66 965,56 963,52 C967,56 971,64 969,84 Z"/>
+      </g>
+    </svg>
+  </div>
 
-    <!-- Parallax wave layers — behind the ship -->
-    <svg class="wave" style="bottom: 18vh; opacity: 0.35;" viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,60 C150,90 300,30 450,60 C600,90 750,30 900,60 C1050,90 1200,30 1200,60 L1200,120 L0,120 Z" fill="var(--c-deep)"/>
-    </svg>
-    <svg class="wave" style="bottom: 6vh; opacity: 0.55;" viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,50 C200,80 400,20 600,50 C800,80 1000,20 1200,50 L1200,120 L0,120 Z" fill="var(--c-abyss)"/>
-    </svg>
-    <svg class="wave" style="bottom: -2vh; opacity: 0.8;" viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,70 C250,100 500,40 750,70 C950,95 1100,50 1200,70 L1200,120 L0,120 Z" fill="var(--c-trench)"/>
-    </svg>
+  <!-- Wave 1 — crashing at the dune base, breaking with white foam -->
+  <svg class="wave" style="bottom: 14vh; opacity: 1; z-index: 2;" viewBox="0 0 1200 130" preserveAspectRatio="none">
+    <!-- Wave body -->
+    <path d="M0,50 C180,18 390,72 610,42 C820,12 1030,62 1200,36 L1200,130 L0,130 Z" fill="#2a8fc9"/>
+    <!-- Foam crest — white band along the breaking edge -->
+    <path d="M0,50 C180,18 390,72 610,42 C820,12 1030,62 1200,36
+             L1200,47 C1030,73 820,23 610,53 C390,83 180,29 0,61 Z" fill="rgba(255,255,255,0.55)"/>
+    <!-- Foam scatter ellipses -->
+    <ellipse cx="200" cy="24" rx="18" ry="5"  fill="rgba(255,255,255,0.3)"/>
+    <ellipse cx="520" cy="42" rx="14" ry="4"  fill="rgba(255,255,255,0.25)"/>
+    <ellipse cx="840" cy="18" rx="20" ry="5"  fill="rgba(255,255,255,0.3)"/>
+    <ellipse cx="1080" cy="40" rx="12" ry="3" fill="rgba(255,255,255,0.22)"/>
+  </svg>
+
+  <!-- Wave 2 — mid-distance, deeper blue with light foam -->
+  <svg class="wave" style="bottom: 5vh; opacity: 0.97; z-index: 3;" viewBox="0 0 1200 130" preserveAspectRatio="none">
+    <!-- Wave body -->
+    <path d="M0,55 C240,88 500,22 755,55 C980,84 1120,34 1200,55 L1200,130 L0,130 Z" fill="#0f5a8a"/>
+    <!-- Subtle foam crest -->
+    <path d="M0,55 C240,88 500,22 755,55 C980,84 1120,34 1200,55
+             L1200,65 C1120,45 980,94 755,66 C500,33 240,98 0,66 Z" fill="rgba(255,255,255,0.22)"/>
+  </svg>
+
+  <!-- Wave 3 — foreground, transitioning to content colour -->
+  <svg class="wave" style="bottom: -3vh; opacity: 1; z-index: 4;" viewBox="0 0 1200 130" preserveAspectRatio="none">
+    <path d="M0,50 C220,82 440,20 660,50 C880,82 1060,30 1200,50 L1200,130 L0,130 Z" fill="#1e1b4b"/>
+  </svg>
+
+  <!-- Wave 4 — base fill matching the content section exactly -->
+  <svg class="wave" style="bottom: -14vh; opacity: 1; z-index: 5;" viewBox="0 0 1200 130" preserveAspectRatio="none">
+    <path d="M0,80 C300,120 600,20 900,80 C1050,110 1150,60 1200,80 L1200,130 L0,130 Z" fill="#1e1b4b"/>
+  </svg>
 
     <!--
       SHIP — SVG placeholder built inline for zero dependencies.
@@ -313,88 +360,67 @@
       long hull, stacked containers midships, bridge castle aft, single funnel.
     -->
     <div class="ship-wrap" id="ship">
-      <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
-        <!-- Water reflection smudge -->
-        <ellipse cx="300" cy="188" rx="260" ry="6" fill="var(--c-trench)" opacity="0.4"/>
+      <!-- Ice cream cone — double scoop, centered in 200×300 viewBox -->
+      <svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg" class="h-auto block mx-auto" style="max-width:220px">
 
-        <!-- Hull — dark with a rust waterline stripe -->
-        <path d="M 40,150 L 560,150 L 540,178 L 60,178 Z" fill="#1a1f2e"/>
-        <rect x="40" y="148" width="520" height="4" fill="#c96f4a"/>
-        <!-- Bulbous bow hint -->
-        <path d="M 555,160 Q 572,165 560,178 L 540,178 Z" fill="#0f1420"/>
-
-        <!-- Deck line -->
-        <rect x="55" y="142" width="490" height="8" fill="#2a3142"/>
-
-        <!-- Container stacks — varied colors, slight grid -->
-        <g id="containers">
-          <!-- Row 1 (bottom) -->
-          <rect x="75"  y="110" width="48" height="32" fill="#c96f4a"/>
-          <rect x="125" y="110" width="48" height="32" fill="#2d5f7a"/>
-          <rect x="175" y="110" width="48" height="32" fill="#8a9c3e"/>
-          <rect x="225" y="110" width="48" height="32" fill="#d4a574"/>
-          <rect x="275" y="110" width="48" height="32" fill="#2d5f7a"/>
-          <rect x="325" y="110" width="48" height="32" fill="#c96f4a"/>
-          <rect x="375" y="110" width="48" height="32" fill="#3a4a5c"/>
-          <rect x="425" y="110" width="48" height="32" fill="#8a9c3e"/>
-
-          <!-- Row 2 -->
-          <rect x="95"  y="80"  width="48" height="28" fill="#2d5f7a"/>
-          <rect x="145" y="80"  width="48" height="28" fill="#d4a574"/>
-          <rect x="195" y="80"  width="48" height="28" fill="#c96f4a"/>
-          <rect x="245" y="80"  width="48" height="28" fill="#3a4a5c"/>
-          <rect x="295" y="80"  width="48" height="28" fill="#8a9c3e"/>
-          <rect x="345" y="80"  width="48" height="28" fill="#2d5f7a"/>
-          <rect x="395" y="80"  width="48" height="28" fill="#c96f4a"/>
-
-          <!-- Row 3 (top, fewer) -->
-          <rect x="125" y="55"  width="48" height="23" fill="#d4a574"/>
-          <rect x="195" y="55"  width="48" height="23" fill="#3a4a5c"/>
-          <rect x="265" y="55"  width="48" height="23" fill="#c96f4a"/>
-          <rect x="335" y="55"  width="48" height="23" fill="#2d5f7a"/>
-
-          <!-- Thin horizontal lines to suggest container ridges -->
-          <g stroke="#000" stroke-opacity="0.18" stroke-width="0.5">
-            <line x1="75" y1="125" x2="475" y2="125"/>
-            <line x1="95" y1="94"  x2="445" y2="94"/>
-            <line x1="125" y1="66" x2="385" y2="66"/>
-          </g>
+        <!-- ── CONE ─────────────────────────────────────────── -->
+        <path d="M 68,178 L 100,285 L 132,178 Z" fill="#d4a574"/>
+        <!-- Waffle grid: horizontal lines narrowing toward the tip -->
+        <g stroke="#b8894e" stroke-width="0.8" opacity="0.6">
+          <line x1="70" y1="185" x2="130" y2="185"/>
+          <line x1="72" y1="197" x2="128" y2="197"/>
+          <line x1="75" y1="210" x2="125" y2="210"/>
+          <line x1="79" y1="224" x2="121" y2="224"/>
+          <line x1="84" y1="238" x2="116" y2="238"/>
+          <line x1="90" y1="252" x2="110" y2="252"/>
+          <!-- Vertical ridges -->
+          <line x1="84" y1="178" x2="100" y2="285"/>
+          <line x1="100" y1="178" x2="100" y2="285"/>
+          <line x1="116" y1="178" x2="100" y2="285"/>
         </g>
+        <!-- Left-edge highlight -->
+        <path d="M 68,178 L 84,178 L 100,285 Z" fill="#e0b882" opacity="0.35"/>
 
-        <!-- Bridge castle (aft) -->
-        <rect x="470" y="75"  width="58" height="67" fill="#e8e4db"/>
-        <rect x="470" y="75"  width="58" height="8"  fill="#c96f4a"/>
-        <!-- Bridge windows -->
-        <g fill="var(--c-deep)">
-          <rect x="476" y="92"  width="10" height="6"/>
-          <rect x="490" y="92"  width="10" height="6"/>
-          <rect x="504" y="92"  width="10" height="6"/>
-          <rect x="518" y="92"  width="6"  height="6"/>
-          <rect x="476" y="104" width="10" height="5"/>
-          <rect x="490" y="104" width="10" height="5"/>
-          <rect x="504" y="104" width="10" height="5"/>
+        <!-- ── BOTTOM SCOOP — vanilla ───────────────────────── -->
+        <ellipse cx="100" cy="150" rx="38" ry="36" fill="#f4ebd9"/>
+        <ellipse cx="112" cy="158" rx="22" ry="20" fill="#ece0c8" opacity="0.5"/>  <!-- shadow -->
+        <ellipse cx="86"  cy="138" rx="14" ry="12" fill="#fff"    opacity="0.3"/>  <!-- highlight -->
+
+        <!-- ── TOP SCOOP — strawberry ──────────────────────── -->
+        <ellipse cx="100" cy="108" rx="34" ry="33" fill="#c96f4a"/>
+        <ellipse cx="112" cy="116" rx="18" ry="16" fill="#b05a38" opacity="0.45"/> <!-- shadow -->
+        <ellipse cx="86"  cy="97"  rx="12" ry="10" fill="#e08060" opacity="0.4"/>  <!-- highlight -->
+
+        <!-- ── DRIPS ────────────────────────────────────────── -->
+        <!-- Vanilla drip down the right side of the bottom scoop -->
+        <path d="M 130,155 Q 136,162 133,172 Q 130,178 127,172 Q 124,162 128,155 Z" fill="#f4ebd9"/>
+        <!-- Strawberry drip down the right side of the top scoop -->
+        <path d="M 126,118 Q 132,126 130,138 Q 128,144 124,138 Q 121,128 124,118 Z" fill="#c96f4a"/>
+
+        <!-- ── CHERRY ────────────────────────────────────────── -->
+        <circle cx="100" cy="76" r="9" fill="#c0392b"/>
+        <circle cx="97"  cy="73" r="3" fill="#e05050" opacity="0.6"/> <!-- shine -->
+        <path d="M 100,67 Q 108,55 114,50" stroke="#3a2a1a" stroke-width="1.8" fill="none" stroke-linecap="round"/> <!-- stem -->
+
+        <!-- ── SPRINKLES on top scoop ──────────────────────── -->
+        <!-- Cream-coloured sprinkles -->
+        <g fill="#f4ebd9" opacity="0.7">
+          <rect x="90"  y="98"  width="8" height="2.5" rx="1" transform="rotate(-20 90 98)"/>
+          <rect x="108" y="105" width="8" height="2.5" rx="1" transform="rotate(15 108 105)"/>
+          <rect x="95"  y="118" width="7" height="2.5" rx="1" transform="rotate(40 95 118)"/>
+          <rect x="113" y="96"  width="7" height="2.5" rx="1" transform="rotate(-35 113 96)"/>
         </g>
-
-        <!-- Funnel -->
-        <rect x="492" y="48" width="18" height="28" fill="#c96f4a"/>
-        <rect x="492" y="48" width="18" height="6"  fill="#1a1f2e"/>
-        <!-- Funnel insignia: simple "M" -->
-        <text x="501" y="70" text-anchor="middle" font-family="Georgia, serif" font-size="10" font-weight="bold" fill="#f4ebd9">M</text>
-        <!-- Bow detail: anchor hint -->
-        <rect x="548" y="160" width="6" height="10" fill="#1a1f2e"/>
-
-        <!-- Port-side shadow under deck -->
-        <rect x="60" y="150" width="480" height="3" fill="#000" opacity="0.35"/>
-
-        <!-- Bow wake -->
-        <path d="M 555,172 Q 585,170 595,178 Q 580,180 560,178 Z" fill="#f4ebd9" opacity="0.6"/>
-        <path d="M 30,172 Q 10,170 0,178 Q 20,180 45,178 Z" fill="#f4ebd9" opacity="0.4"/>
+        <!-- Gold sprinkles -->
+        <g fill="#d4a574" opacity="0.8">
+          <rect x="82"  y="108" width="7" height="2.5" rx="1" transform="rotate(10 82 108)"/>
+          <rect x="103" y="113" width="6" height="2.5" rx="1" transform="rotate(-25 103 113)"/>
+        </g>
       </svg>
     </div>
 
     <!-- Scroll cue -->
     <div class="scroll-cue absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 text-deep/70">
-      <div class="font-mono text-[0.65rem] tracking-[0.3em] uppercase">Descend</div>
+      <div class="font-mono text-[0.65rem] tracking-[0.3em] uppercase">Del II</div>
       <svg width="12" height="18" viewBox="0 0 12 18" fill="none"><path d="M6 1v15m0 0l-5-5m5 5l5-5" stroke="currentColor" stroke-width="1.2"/></svg>
     </div>
   </section>
@@ -410,88 +436,145 @@
 
       <!-- Chapter tag + big editorial number -->
       <div class="flex items-baseline justify-between mb-16 md:mb-24">
-        <div class="chapter-tag">Chapter II · The Destination</div>
+        <div class="chapter-tag">Del II · Historien</div>
         <div class="big-num text-brass/30 text-[6rem] md:text-[9rem] select-none">02</div>
       </div>
 
       <!-- Headline -->
       <h2 class="font-display font-light text-bone tracking-mega leading-[0.95]
                  text-[clamp(2.4rem,6.5vw,5.5rem)] max-w-4xl">
-        Where the water
-        <span class="italic font-normal text-brass">turns</span>
-        to ink, the work begins.
+        Hvor filmens ord blir til
+        <span class="italic font-normal text-brass">blekk.</span>
       </h2>
 
-      <!-- Thin rule -->
-      <div class="rule-thin my-16 md:my-20"></div>
-
-      <!-- Two-column editorial body -->
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
-
-        <!-- Left: label column -->
-        <aside class="md:col-span-3 space-y-6">
-          <div>
-            <div class="chapter-tag mb-2">§ 01</div>
-            <div class="font-display text-bone text-xl">On Cargo</div>
-          </div>
-          <p class="font-mono text-xs text-bone/50 leading-relaxed">
-            Filed from the wheelhouse, 03:14 ship's time. Transcribed by the second mate.
-          </p>
-        </aside>
-
-        <!-- Middle column -->
-        <div class="md:col-span-4 space-y-5 font-display text-bone/85 text-[1.05rem] leading-[1.7]">
-          <p class="first-letter:float-left first-letter:font-display first-letter:font-medium first-letter:text-6xl first-letter:leading-[0.85] first-letter:mr-2 first-letter:mt-1 first-letter:text-brass">
-            Every voyage is a small act of faith — a wager against weather, ledger, and time. The Meridian carries twenty-two thousand containers across ocean corridors older than any nation she flies.
-          </p>
-          <p>
-            We do not move boxes. We move the promises packed inside them: grain for Lagos, turbines for Dakar, medicine for ports whose names our grandfathers never learned to spell.
-          </p>
-        </div>
-
-        <!-- Right column -->
-        <div class="md:col-span-5 space-y-5 font-display text-bone/75 text-[1rem] leading-[1.75]">
-          <p>
-            The route from <span class="text-brass font-medium">Rotterdam</span> to <span class="text-brass font-medium">Singapore</span> crosses four seas, one canal, and a thousand quiet hours where nothing happens but the low hum of the engine and the turning of pages in the mess. This is the texture of the trade: long stretches of ordinary, punctuated by the exacting choreography of port.
-          </p>
-          <p>
-            Meridian Line keeps a fleet of seventeen vessels. They sail under a plain white flag with a single rust-coloured stripe — our reminder that the work is unglamorous, dependable, and absolutely necessary.
-          </p>
-          <!-- Factoids -->
-          <div class="grid grid-cols-3 gap-6 pt-6 border-t border-bone/10">
-            <div>
-              <div class="big-num text-brass text-4xl">17</div>
-              <div class="font-mono text-[0.65rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Active vessels</div>
-            </div>
-            <div>
-              <div class="big-num text-brass text-4xl">142</div>
-              <div class="font-mono text-[0.65rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Ports served</div>
-            </div>
-            <div>
-              <div class="big-num text-brass text-4xl">29y</div>
-              <div class="font-mono text-[0.65rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Since launch</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CTA block -->
-      <div class="mt-24 md:mt-32 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 border-t border-bone/15 pt-12">
+            <!-- CTA block -->
+      <div class="mt-24 md:mt-32 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 border-t border-b border-bone/15 py-12">
         <div>
-          <div class="chapter-tag mb-3">Book passage</div>
+          <div class="chapter-tag mb-3">Scene</div>
           <p class="font-display text-bone text-2xl md:text-3xl max-w-xl leading-tight">
-            Request a manifest slot on the next eastbound crossing.
+            En kort samtale om to is.
           </p>
         </div>
-        <button class="btn-voyage" type="button">
-          Get Started
-          <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5h12m0 0L9 1m4 4L9 9" stroke="currentColor" stroke-width="1.3"/></svg>
-        </button>
       </div>
 
-    </div>
-  </section>
 
+        <!-- Dialogue block -->
+        <div class="md:col-span-8 space-y-3 font-display text-bone/85 text-[1.05rem] leading-[1.7] mt-16 md:mt-20">
+
+          <!-- Row 1 -->
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Slutt da.</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Kom igjen da.</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Du skal ikke ha is nå.</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Det er kaldt ute, og du har nettopp spist frokost.</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Kom igjen da.</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8"></div>
+            <div class="pl-8">Jeg har lyst på is.</div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Har du bra med penger til det?</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8"></div>
+            <div class="pl-8">Ja.</div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Hva slags is er det du skal ha?</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8"></div>
+            <div class="pl-8">Skal ha den.</div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Fint. Den?</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8"></div>
+            <div class="pl-8">To is.</div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Hæ?</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8"></div>
+            <div class="pl-8">Jeg vil ha to is.</div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Du skal ha én is.</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8"></div>
+            <div class="pl-8">Jeg vil ha to is.</div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Hør nå. Det har du ikke penger til. Ok? Har du penger til det?</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8"></div>
+            <div class="pl-8">Ja.</div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Nei, det har du ikke.</div>
+            <div class="pl-8"></div>
+          </div>
+
+        </div>
+
+        <!-- End scene -->
+        <div class="mt-20 flex flex-col items-center gap-4 text-center">
+          <div class="flex items-center gap-4 w-full max-w-sm">
+            <div class="flex-1 border-t border-bone/20"></div>
+            <span class="font-mono text-[0.65rem] tracking-[0.4em] uppercase text-bone/35">Slutt</span>
+            <div class="flex-1 border-t border-bone/20"></div>
+          </div>
+          <div class="font-display italic text-bone/20 text-[0.8rem] tracking-wide">— scene —</div>
+          <a href="https://www.youtube.com/watch?v=WOFyWYZZGc0" target="_blank" rel="noopener" class="mt-6 btn-voyage">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0C.488 3.45.029 5.804 0 12c.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0C23.512 20.55 23.971 18.196 24 12c-.029-6.185-.484-8.549-4.385-8.816zM9 16V8l8 4-8 4z"/></svg>
+            Se originalscenen
+          </a>
+        </div>
+
+      </div>
+    </section>
   <!--
     ========================================================================
     FOOTER — small, typographic, punctuation only
@@ -499,11 +582,11 @@
   -->
   <footer class="relative px-6 md:px-12 py-10 border-t border-bone/10 bg-trench">
     <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4 font-mono text-[0.7rem] tracking-[0.22em] uppercase text-bone/40">
-      <div>© MMXXVI · Meridian Line Shipping Co.</div>
+      <div>© MMXXVI · Boland nettside.</div>
       <div class="flex gap-8">
-        <a href="#" class="hover:text-bone transition">Privacy</a>
-        <a href="#" class="hover:text-bone transition">Manifest</a>
-        <a href="#" class="hover:text-bone transition">Careers</a>
+        <a href="#" class="hover:text-bone transition">Mer</a>
+        <a href="#" class="hover:text-bone transition">Enda litt mer</a>
+        <a href="#" class="hover:text-bone transition">Vippsen min</a>
       </div>
     </div>
   </footer>
