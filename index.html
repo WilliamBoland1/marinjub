@@ -1,686 +1,500 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Scroll · Driven</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
-<style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meridian Line — Trans-Oceanic Freight</title>
+  <meta name="description" content="A demonstration of scroll-linked animation: a container ship voyages from horizon to port as the viewer descends into deep water." />
 
-/* ─── reset ─────────────────────────────────────────── */
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-/* ─── tokens ─────────────────────────────────────────── */
-:root {
-  --bg:        #0b0b0b;
-  --surface:   #141414;
-  --line:      rgba(255,255,255,0.08);
-  --muted:     rgba(255,255,255,0.28);
-  --text:      #f0ede6;
-  --accent:    #c8f060;       /* electric lime */
-  --accent2:   #ff6b35;       /* burnt orange  */
-  --accent3:   #5bc8fa;       /* icy blue      */
-  --serif:     'Instrument Serif', Georgia, serif;
-  --mono:      'DM Mono', monospace;
-  --max:       780px;
-}
+  <!-- Distinctive font pairing: serif display + mono utility -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,700;9..144,900&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
 
-/* ─── base ───────────────────────────────────────────── */
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--mono);
-  font-weight: 300;
-  font-size: 15px;
-  line-height: 1.7;
-  overflow-x: hidden;
-}
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
-/* thin horizontal rule between sections */
-hr {
-  border: none;
-  border-top: 1px solid var(--line);
-  margin: 0;
-}
+  <!--
+    ========================================================================
+    TAILWIND CONFIG — extend with custom maritime palette + fonts
+    ========================================================================
+  -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Fraunces', 'Georgia', 'serif'],
+            mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+          },
+          colors: {
+            // Surface → abyss gradient stops
+            surface:  '#a9c8d8', // pale morning sea
+            horizon:  '#5887a3', // midday water
+            deep:     '#1a3a5c', // voyage blue
+            abyss:    '#0a1628', // deep-water content theme
+            trench:   '#050b17', // near-black punctuation
+            bone:     '#f4ebd9', // warm paper / type
+            rust:     '#c96f4a', // accent — signal flag orange
+            brass:    '#d4a574', // accent — warm metal
+          },
+          letterSpacing: {
+            'mega': '-0.04em',
+          }
+        }
+      }
+    }
+  </script>
 
-/* ─── layout helper ──────────────────────────────────── */
-.wrap {
-  max-width: var(--max);
-  margin: 0 auto;
-  padding: 0 2rem;
-}
+  <!--
+    ========================================================================
+    BASE STYLES — custom properties, grain texture, typography polish
+    ========================================================================
+  -->
+  <style>
+    :root {
+      --c-surface: #a9c8d8;
+      --c-horizon: #5887a3;
+      --c-deep:    #1a3a5c;
+      --c-abyss:   #0a1628;
+      --c-trench:  #050b17;
+      --c-bone:    #f4ebd9;
+      --c-rust:    #c96f4a;
+      --c-brass:   #d4a574;
+    }
 
-/* ─── nav ────────────────────────────────────────────── */
-nav {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  z-index: 100;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.25rem 2.5rem;
-  border-bottom: 1px solid var(--line);
-  backdrop-filter: blur(12px);
-  background: rgba(11,11,11,0.72);
-}
-.nav-logo {
-  font-family: var(--serif);
-  font-size: 1.1rem;
-  color: var(--text);
-  letter-spacing: .02em;
-}
-.nav-tag {
-  font-size: 11px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
+    html { scroll-behavior: auto; }  /* GSAP handles smoothness */
+    body {
+      font-family: 'Fraunces', Georgia, serif;
+      background: var(--c-abyss);
+      color: var(--c-bone);
+      overflow-x: hidden;
+    }
 
-/* ─── hero ───────────────────────────────────────────── */
-.hero {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 8rem 2.5rem 5rem;
-  max-width: 900px;
-  margin: 0 auto;
-}
+    /* Hero section dynamic background — set by GSAP */
+    .hero-bg {
+      background:
+        radial-gradient(ellipse at 50% 110%, rgba(10,22,40,0.55) 0%, transparent 60%),
+        linear-gradient(180deg, var(--c-surface) 0%, var(--c-horizon) 45%, var(--c-deep) 100%);
+    }
 
-.hero-eyebrow {
-  font-size: 11px;
-  letter-spacing: .18em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 1.5rem;
+    /* Subtle film grain overlay — gives the whole page a printed feel */
+    .grain::after {
+      content: '';
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 100;
+      opacity: 0.08; mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.55'/></svg>");
+    }
 
-  animation: fadeUp linear both;
-  animation-timeline: view();
-  animation-range: entry 0% entry 50%;
-}
+    /* Horizon haze band — thin strip of mist where sky meets sea */
+    .horizon-haze {
+      position: absolute;
+      left: 0; right: 0;
+      top: 48%;
+      height: 90px;
+      background: linear-gradient(180deg, transparent, rgba(244,235,217,0.12), transparent);
+      pointer-events: none;
+      filter: blur(2px);
+    }
 
-.hero h1 {
-  font-family: var(--serif);
-  font-size: clamp(3.5rem, 9vw, 7rem);
-  font-weight: 400;
-  line-height: 1.0;
-  letter-spacing: -.02em;
-  color: var(--text);
-  margin-bottom: 2rem;
+    /* Parallax wave layers */
+    .wave {
+      position: absolute;
+      left: -5%; right: -5%;
+      height: 180px;
+      pointer-events: none;
+    }
 
-  animation: fadeUp linear both;
-  animation-timeline: view();
-  animation-range: entry 0% entry 50%;
-  animation-delay: 60ms;
-}
+    /* Ship wrapper — positioned absolutely, animated by GSAP */
+    .ship-wrap {
+      position: absolute;
+      left: 50%;
+      bottom: 8vh;
+      transform: translateX(-50%);
+      width: min(560px, 72vw);
+      will-change: transform;
+      filter: drop-shadow(0 30px 40px rgba(5,11,23,0.55));
+    }
 
-.hero h1 em {
-  font-style: italic;
-  color: var(--accent);
-}
+    /* Ship gently bobs — compounds with GSAP scroll transform */
+    @keyframes bob {
+      0%,100% { transform: translateX(-50%) translateY(0) rotate(-0.3deg); }
+      50%     { transform: translateX(-50%) translateY(-6px) rotate(0.3deg); }
+    }
+    .ship-wrap { animation: bob 4.5s ease-in-out infinite; }
 
-.hero-sub {
-  max-width: 480px;
-  color: var(--muted);
-  font-size: .9rem;
-  line-height: 1.8;
-  margin-bottom: 3rem;
+    /* Marquee ticker at top of hero */
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .ticker-track {
+      display: inline-flex;
+      gap: 3rem;
+      animation: ticker 45s linear infinite;
+      white-space: nowrap;
+    }
 
-  animation: fadeUp linear both;
-  animation-timeline: view();
-  animation-range: entry 0% entry 50%;
-  animation-delay: 120ms;
-}
+    /* Large editorial number styling */
+    .big-num {
+      font-family: 'Fraunces', serif;
+      font-variation-settings: "opsz" 144, "wght" 300;
+      letter-spacing: -0.05em;
+      line-height: 0.85;
+    }
 
-.hero-scroll-hint {
-  display: flex;
-  align-items: center;
-  gap: .75rem;
-  font-size: 11px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--muted);
+    /* Hand-drawn underline accent */
+    .scribble {
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8'><path d='M2 5 Q 50 1, 100 4 T 198 3' stroke='%23c96f4a' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+      background-size: 100% 0.5em;
+      padding-bottom: 0.15em;
+    }
 
-  animation: fadeUp linear both;
-  animation-timeline: view();
-  animation-range: entry 0% entry 50%;
-  animation-delay: 180ms;
-}
-.hero-scroll-hint::before {
-  content: '';
-  display: block;
-  width: 40px;
-  height: 1px;
-  background: var(--muted);
-}
+    /* Content CTA button — utilitarian, industrial feel */
+    .btn-voyage {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 1.1rem 2.2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--c-abyss);
+      background: var(--c-bone);
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.3s;
+    }
+    .btn-voyage::before {
+      content: '';
+      position: absolute; inset: 0;
+      border: 1px solid var(--c-bone);
+      transform: translate(8px, 8px);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .btn-voyage:hover { transform: translate(-2px, -2px); background: var(--c-brass); }
+    .btn-voyage:hover::before { transform: translate(12px, 12px); }
 
-/* ─── section shell ──────────────────────────────────── */
-.section {
-  padding: 7rem 2.5rem;
-  max-width: var(--max);
-  margin: 0 auto;
-}
+    /* Thin rules as editorial dividers */
+    .rule-thin { border-top: 1px solid rgba(244,235,217,0.18); }
 
-.section-num {
-  font-size: 11px;
-  letter-spacing: .14em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 3rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-.section-num::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--line);
-}
+    /* Number label badges (mono, rotated slightly) */
+    .chapter-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--c-brass);
+    }
 
-.section h2 {
-  font-family: var(--serif);
-  font-size: clamp(2rem, 5vw, 3.6rem);
-  font-weight: 400;
-  line-height: 1.1;
-  letter-spacing: -.01em;
-  margin-bottom: 1.25rem;
-}
+    /* Section with vignette */
+    .vignette {
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(26,58,92,0.35) 0%, transparent 55%),
+        var(--c-abyss);
+    }
 
-.section p {
-  color: var(--muted);
-  max-width: 520px;
-  font-size: .88rem;
-  line-height: 1.85;
-}
+    /* Scroll cue */
+    @keyframes cueDown {
+      0%,100% { transform: translateY(0); opacity: 0.6; }
+      50%     { transform: translateY(6px); opacity: 1; }
+    }
+    .scroll-cue { animation: cueDown 2s ease-in-out infinite; }
 
-/* slide helpers */
-.slide-left {
-  animation: slideLeft linear both;
-  animation-timeline: view();
-  animation-range: entry 0% entry 48%;
-}
-.slide-right {
-  animation: slideRight linear both;
-  animation-timeline: view();
-  animation-range: entry 0% entry 48%;
-}
-.fade-up {
-  animation: fadeUp linear both;
-  animation-timeline: view();
-  animation-range: entry 0% entry 45%;
-}
-
-/* ─── § 1 — slide-in split ───────────────────────────── */
-.split {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-top: 3rem;
-}
-.split-cell {
-  background: var(--surface);
-  padding: 2rem 1.5rem;
-}
-.split-cell .label {
-  font-size: 10px;
-  letter-spacing: .16em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: .75rem;
-}
-.split-cell .val {
-  font-family: var(--serif);
-  font-size: 2.4rem;
-  line-height: 1;
-}
-.split-cell p {
-  font-size: .8rem;
-  color: var(--muted);
-  margin-top: .5rem;
-}
-
-/* ─── § 2 — scrubbed bars ────────────────────────────── */
-.bars { margin-top: 3rem; display: flex; flex-direction: column; gap: 2.2rem; }
-
-.bar-row {}
-.bar-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  margin-bottom: .6rem;
-}
-.bar-name {
-  font-size: .82rem;
-  letter-spacing: .06em;
-}
-.bar-pct {
-  font-family: var(--serif);
-  font-size: 1.5rem;
-  line-height: 1;
-}
-
-.bar-track {
-  width: 100%;
-  height: 3px;
-  background: var(--line);
-  border-radius: 99px;
-  overflow: hidden;
-}
-
-/* Each fill animates scrubbed to scroll */
-.bar-fill {
-  height: 100%;
-  border-radius: 99px;
-  transform-origin: left;
-  transform: scaleX(0);
-
-  animation: scaleBar linear both;
-  animation-timeline: view();
-  animation-range: entry 15% exit 75%;
-}
-
-/* thick accent bar variant */
-.bar-track.thick { height: 6px; }
-
-.bar-1 .bar-fill { background: var(--accent);  width: 92%; }
-.bar-2 .bar-fill { background: var(--accent2); width: 78%; animation-delay: 40ms; }
-.bar-3 .bar-fill { background: var(--accent3); width: 85%; animation-delay: 80ms; }
-.bar-4 .bar-fill { background: var(--muted);   width: 61%; animation-delay: 120ms; }
-
-.bar-pct-1 { color: var(--accent);  }
-.bar-pct-2 { color: var(--accent2); }
-.bar-pct-3 { color: var(--accent3); }
-.bar-pct-4 { color: var(--muted);   }
-
-/* ─── § 3 — staggered cards ─────────────────────────── */
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  overflow: hidden;
-  margin-top: 3rem;
-}
-.card {
-  background: var(--surface);
-  padding: 1.75rem 1.5rem;
-
-  animation: popIn linear both;
-  animation-timeline: view();
-  animation-range: entry 0% entry 55%;
-}
-.card:nth-child(2) { animation-delay: 70ms; }
-.card:nth-child(3) { animation-delay: 140ms; }
-
-.card-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  margin-bottom: 1.25rem;
-}
-.card h3 {
-  font-family: var(--serif);
-  font-size: 1.35rem;
-  font-weight: 400;
-  margin-bottom: .5rem;
-}
-.card p {
-  font-size: .8rem;
-  color: var(--muted);
-  line-height: 1.75;
-}
-
-/* ─── § 4 — word reveal ─────────────────────────────── */
-.big-quote {
-  font-family: var(--serif);
-  font-size: clamp(1.8rem, 4.5vw, 3rem);
-  font-weight: 400;
-  line-height: 1.35;
-  margin-top: 3rem;
-}
-.reveal-word {
-  display: inline;
-  color: rgba(240,237,230,0.15);
-  animation: wordOn linear both;
-  animation-timeline: view();
-  animation-range: entry 5% entry 75%;
-}
-.reveal-word:nth-child(1)  { animation-delay: 0ms;   }
-.reveal-word:nth-child(2)  { animation-delay: 55ms;  }
-.reveal-word:nth-child(3)  { animation-delay: 110ms; }
-.reveal-word:nth-child(4)  { animation-delay: 165ms; }
-.reveal-word:nth-child(5)  { animation-delay: 220ms; }
-.reveal-word:nth-child(6)  { animation-delay: 275ms; }
-.reveal-word:nth-child(7)  { animation-delay: 330ms; }
-.reveal-word:nth-child(8)  { animation-delay: 385ms; }
-.reveal-word:nth-child(9)  { animation-delay: 440ms; }
-.reveal-word:nth-child(10) { animation-delay: 495ms; }
-.reveal-word:nth-child(11) { animation-delay: 550ms; }
-.reveal-word:nth-child(12) { animation-delay: 605ms; }
-.reveal-word:nth-child(13) { animation-delay: 660ms; }
-.reveal-word:nth-child(14) { animation-delay: 715ms; }
-.reveal-word:nth-child(15) { animation-delay: 770ms; }
-.reveal-word:nth-child(16) { animation-delay: 825ms; }
-
-/* ─── § 5 — spin / rotate entry ─────────────────────── */
-.emblem-row {
-  display: flex;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  margin-top: 3rem;
-}
-.emblem {
-  width: 110px; height: 110px;
-  border: 1px solid var(--line);
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-
-  animation: spinIn linear both;
-  animation-timeline: view();
-  animation-range: entry 0% entry 55%;
-}
-.emblem:nth-child(2) { animation-delay: 80ms;  }
-.emblem:nth-child(3) { animation-delay: 160ms; }
-.emblem:nth-child(4) { animation-delay: 240ms; }
-
-.emblem-num {
-  font-family: var(--serif);
-  font-size: 1.6rem;
-  line-height: 1;
-}
-.emblem-label {
-  font-size: 9px;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-/* ─── footer ─────────────────────────────────────────── */
-footer {
-  padding: 4rem 2.5rem;
-  border-top: 1px solid var(--line);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 1rem;
-  max-width: 900px;
-  margin: 0 auto;
-}
-.footer-brand {
-  font-family: var(--serif);
-  font-size: 1.1rem;
-}
-.footer-note {
-  font-size: 11px;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-/* ─── keyframes ──────────────────────────────────────── */
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(48px); }
-  to   { opacity: 1; transform: translateY(0);    }
-}
-
-@keyframes slideLeft {
-  from { opacity: 0; transform: translateX(-56px); }
-  to   { opacity: 1; transform: translateX(0);     }
-}
-
-@keyframes slideRight {
-  from { opacity: 0; transform: translateX(56px); }
-  to   { opacity: 1; transform: translateX(0);    }
-}
-
-@keyframes scaleBar {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
-}
-
-@keyframes popIn {
-  from { opacity: 0; transform: scale(0.82) translateY(24px); }
-  to   { opacity: 1; transform: scale(1)    translateY(0);    }
-}
-
-@keyframes spinIn {
-  from { opacity: 0; transform: rotate(-200deg) scale(0.4); }
-  to   { opacity: 1; transform: rotate(0deg)    scale(1);   }
-}
-
-@keyframes wordOn {
-  from { color: rgba(240,237,230,0.12); }
-  to   { color: rgba(240,237,230,1);    }
-}
-
-/* ─── scrollbar ──────────────────────────────────────── */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: var(--line); border-radius: 2px; }
-
-/* ─── fallback for browsers without animation-timeline ── */
-@supports not (animation-timeline: view()) {
-  .slide-left, .slide-right, .fade-up,
-  .hero-eyebrow, .hero h1, .hero-sub, .hero-scroll-hint,
-  .bar-fill, .card, .reveal-word, .emblem {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-</style>
+    /* Reduce motion respect */
+    @media (prefers-reduced-motion: reduce) {
+      .ship-wrap, .ticker-track, .scroll-cue { animation: none; }
+    }
+  </style>
 </head>
-<body>
+<body class="grain antialiased">
 
-<!-- NAV -->
-<nav>
-  <span class="nav-logo">Scroll · Driven</span>
-  <span class="nav-tag">CSS animation-timeline</span>
-</nav>
+  <!--
+    ========================================================================
+    HERO — THE VOYAGE
+    Pinned. Ship translates from bottom → top. Background shifts to abyss.
+    ========================================================================
+  -->
+  <section id="hero" class="relative w-full h-screen overflow-hidden hero-bg">
 
-<!-- ════════════════════════ HERO ════════════════════════ -->
-<section>
-  <div class="hero">
-    <div class="hero-eyebrow">Pure CSS · No JavaScript · animation-timeline: view()</div>
-    <h1>Motion that<br>lives in the<br><em>scroll.</em></h1>
-    <p class="hero-sub">
-      Every animation on this page is driven entirely by the browser's native
-      CSS scroll timeline API — no libraries, no listeners, no JavaScript.
-      Just scroll.
-    </p>
-    <div class="hero-scroll-hint">Scroll to explore</div>
-  </div>
-</section>
-
-<hr>
-
-<!-- ════════════════════════ § 01 — SLIDE IN ════════════════════════ -->
-<div class="section">
-  <div class="section-num slide-left">01 — Slide in on entry</div>
-  <h2 class="slide-left" style="animation-delay:50ms">
-    Elements arrive<br>from either side.
-  </h2>
-  <p class="slide-left" style="animation-delay:100ms">
-    Using <code>translateX</code> over <code>animation-range: entry 0% entry 48%</code> —
-    the transition completes the moment the element is nearly half-visible.
-  </p>
-
-  <div class="split">
-    <div class="split-cell slide-left" style="animation-delay:160ms">
-      <div class="label">from the left</div>
-      <div class="val" style="color:var(--accent)">←</div>
-      <p>Travels in from the left edge of the viewport</p>
-    </div>
-    <div class="split-cell slide-right" style="animation-delay:160ms">
-      <div class="label">from the right</div>
-      <div class="val" style="color:var(--accent2)">→</div>
-      <p>Mirrors the same keyframe, opposite direction</p>
-    </div>
-  </div>
-</div>
-
-<hr>
-
-<!-- ════════════════════════ § 02 — SCRUBBED BARS ════════════════════════ -->
-<div class="section">
-  <div class="section-num slide-left">02 — Scrubbed to scroll position</div>
-  <h2 class="slide-left" style="animation-delay:50ms">
-    Bars that grow<br>as you descend.
-  </h2>
-  <p class="slide-left" style="animation-delay:100ms">
-    These are not triggered once and done — they are permanently coupled
-    to your scroll position via <code>animation-range: entry 15% exit 75%</code>.
-    Scroll back up and watch them shrink.
-  </p>
-
-  <div class="bars">
-    <div class="bar-row bar-1 fade-up" style="animation-delay:160ms">
-      <div class="bar-meta">
-        <span class="bar-name">CSS Mastery</span>
-        <span class="bar-pct bar-pct-1">92%</span>
-      </div>
-      <div class="bar-track thick">
-        <div class="bar-fill"></div>
+    <!-- Top ticker: "latest dispatches from sea" -->
+    <div class="absolute top-0 left-0 right-0 z-20 border-b border-white/10 bg-black/5 backdrop-blur-sm overflow-hidden">
+      <div class="py-2.5 overflow-hidden">
+        <div class="ticker-track font-mono text-[0.7rem] tracking-[0.25em] uppercase text-deep/80">
+          <span>◆ 47°36'N 008°32'W &nbsp;·&nbsp; MV Meridian en route Rotterdam → Singapore</span>
+          <span>◆ Beaufort 3 · swell 1.2m · visibility clear</span>
+          <span>◆ Est. arrival 14 days 06 hours</span>
+          <span>◆ Cargo manifest no. 22881-A</span>
+          <span>◆ 47°36'N 008°32'W &nbsp;·&nbsp; MV Meridian en route Rotterdam → Singapore</span>
+          <span>◆ Beaufort 3 · swell 1.2m · visibility clear</span>
+          <span>◆ Est. arrival 14 days 06 hours</span>
+          <span>◆ Cargo manifest no. 22881-A</span>
+        </div>
       </div>
     </div>
 
-    <div class="bar-row bar-2 fade-up" style="animation-delay:200ms">
-      <div class="bar-meta">
-        <span class="bar-name">Motion Design</span>
-        <span class="bar-pct bar-pct-2">78%</span>
+    <!-- Top-left masthead -->
+    <header class="absolute top-14 left-0 right-0 z-20 px-6 md:px-12">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="chapter-tag text-deep/70">Est. MCMXCVII</div>
+          <h1 class="font-display text-2xl md:text-3xl font-medium text-deep tracking-mega leading-none mt-1">
+            Meridian<span class="italic font-light">/</span>Line
+          </h1>
+        </div>
+        <nav class="hidden md:flex items-center gap-8 font-mono text-[0.72rem] tracking-[0.22em] uppercase text-deep/80">
+          <a href="#" class="hover:text-trench transition">Fleet</a>
+          <a href="#" class="hover:text-trench transition">Routes</a>
+          <a href="#" class="hover:text-trench transition">Manifest</a>
+          <a href="#" class="hover:text-trench transition">Contact</a>
+        </nav>
       </div>
-      <div class="bar-track thick">
-        <div class="bar-fill"></div>
+    </header>
+
+    <!-- Hero headline: anchored top-center, over the sky -->
+    <div class="hero-headline absolute top-[22%] left-0 right-0 z-10 px-6 md:px-12 text-center">
+      <div class="chapter-tag text-deep/70 mb-4">Chapter I · The Crossing</div>
+      <h2 class="font-display font-light text-deep tracking-mega leading-[0.9]
+                 text-[clamp(2.8rem,9vw,7.5rem)]">
+        Twelve thousand <span class="italic font-normal scribble">nautical</span>
+        <br/>miles of patience.
+      </h2>
+      <p class="mt-6 max-w-xl mx-auto font-mono text-[0.78rem] md:text-xs tracking-[0.2em] uppercase text-deep/70">
+        Scroll to follow the MV Meridian into deep water.
+      </p>
+    </div>
+
+    <!-- Horizon haze -->
+    <div class="horizon-haze"></div>
+
+    <!-- Parallax wave layers — behind the ship -->
+    <svg class="wave" style="bottom: 18vh; opacity: 0.35;" viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,60 C150,90 300,30 450,60 C600,90 750,30 900,60 C1050,90 1200,30 1200,60 L1200,120 L0,120 Z" fill="#1a3a5c"/>
+    </svg>
+    <svg class="wave" style="bottom: 6vh; opacity: 0.55;" viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,50 C200,80 400,20 600,50 C800,80 1000,20 1200,50 L1200,120 L0,120 Z" fill="#0a1628"/>
+    </svg>
+    <svg class="wave" style="bottom: -2vh; opacity: 0.8;" viewBox="0 0 1200 120" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,70 C250,100 500,40 750,70 C950,95 1100,50 1200,70 L1200,120 L0,120 Z" fill="#050b17"/>
+    </svg>
+
+    <!--
+      SHIP — SVG placeholder built inline for zero dependencies.
+      Proportions nod to a post-Panamax container vessel:
+      long hull, stacked containers midships, bridge castle aft, single funnel.
+    -->
+    <div class="ship-wrap" id="ship">
+      <svg viewBox="0 0 600 200" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
+        <!-- Water reflection smudge -->
+        <ellipse cx="300" cy="188" rx="260" ry="6" fill="#050b17" opacity="0.4"/>
+
+        <!-- Hull — dark with a rust waterline stripe -->
+        <path d="M 40,150 L 560,150 L 540,178 L 60,178 Z" fill="#1a1f2e"/>
+        <rect x="40" y="148" width="520" height="4" fill="#c96f4a"/>
+        <!-- Bulbous bow hint -->
+        <path d="M 555,160 Q 572,165 560,178 L 540,178 Z" fill="#0f1420"/>
+
+        <!-- Deck line -->
+        <rect x="55" y="142" width="490" height="8" fill="#2a3142"/>
+
+        <!-- Container stacks — varied colors, slight grid -->
+        <g id="containers">
+          <!-- Row 1 (bottom) -->
+          <rect x="75"  y="110" width="48" height="32" fill="#c96f4a"/>
+          <rect x="125" y="110" width="48" height="32" fill="#2d5f7a"/>
+          <rect x="175" y="110" width="48" height="32" fill="#8a9c3e"/>
+          <rect x="225" y="110" width="48" height="32" fill="#d4a574"/>
+          <rect x="275" y="110" width="48" height="32" fill="#2d5f7a"/>
+          <rect x="325" y="110" width="48" height="32" fill="#c96f4a"/>
+          <rect x="375" y="110" width="48" height="32" fill="#3a4a5c"/>
+          <rect x="425" y="110" width="48" height="32" fill="#8a9c3e"/>
+
+          <!-- Row 2 -->
+          <rect x="95"  y="80"  width="48" height="28" fill="#2d5f7a"/>
+          <rect x="145" y="80"  width="48" height="28" fill="#d4a574"/>
+          <rect x="195" y="80"  width="48" height="28" fill="#c96f4a"/>
+          <rect x="245" y="80"  width="48" height="28" fill="#3a4a5c"/>
+          <rect x="295" y="80"  width="48" height="28" fill="#8a9c3e"/>
+          <rect x="345" y="80"  width="48" height="28" fill="#2d5f7a"/>
+          <rect x="395" y="80"  width="48" height="28" fill="#c96f4a"/>
+
+          <!-- Row 3 (top, fewer) -->
+          <rect x="125" y="55"  width="48" height="23" fill="#d4a574"/>
+          <rect x="195" y="55"  width="48" height="23" fill="#3a4a5c"/>
+          <rect x="265" y="55"  width="48" height="23" fill="#c96f4a"/>
+          <rect x="335" y="55"  width="48" height="23" fill="#2d5f7a"/>
+
+          <!-- Thin horizontal lines to suggest container ridges -->
+          <g stroke="#000" stroke-opacity="0.18" stroke-width="0.5">
+            <line x1="75" y1="125" x2="475" y2="125"/>
+            <line x1="95" y1="94"  x2="445" y2="94"/>
+            <line x1="125" y1="66" x2="385" y2="66"/>
+          </g>
+        </g>
+
+        <!-- Bridge castle (aft) -->
+        <rect x="470" y="75"  width="58" height="67" fill="#e8e4db"/>
+        <rect x="470" y="75"  width="58" height="8"  fill="#c96f4a"/>
+        <!-- Bridge windows -->
+        <g fill="#1a3a5c">
+          <rect x="476" y="92"  width="10" height="6"/>
+          <rect x="490" y="92"  width="10" height="6"/>
+          <rect x="504" y="92"  width="10" height="6"/>
+          <rect x="518" y="92"  width="6"  height="6"/>
+          <rect x="476" y="104" width="10" height="5"/>
+          <rect x="490" y="104" width="10" height="5"/>
+          <rect x="504" y="104" width="10" height="5"/>
+        </g>
+
+        <!-- Funnel -->
+        <rect x="492" y="48" width="18" height="28" fill="#c96f4a"/>
+        <rect x="492" y="48" width="18" height="6"  fill="#1a1f2e"/>
+        <!-- Funnel insignia: simple "M" -->
+        <text x="501" y="70" text-anchor="middle" font-family="Georgia, serif" font-size="10" font-weight="bold" fill="#f4ebd9">M</text>
+
+        <!-- Mast with antennae -->
+        <line x1="460" y1="75" x2="460" y2="30" stroke="#1a1f2e" stroke-width="1.5"/>
+        <line x1="452" y1="45" x2="468" y2="45" stroke="#1a1f2e" stroke-width="1"/>
+        <circle cx="460" cy="28" r="2" fill="#c96f4a"/>
+
+        <!-- Bow detail: anchor hint -->
+        <rect x="548" y="160" width="6" height="10" fill="#1a1f2e"/>
+
+        <!-- Port-side shadow under deck -->
+        <rect x="60" y="150" width="480" height="3" fill="#000" opacity="0.35"/>
+
+        <!-- Bow wake -->
+        <path d="M 555,172 Q 585,170 595,178 Q 580,180 560,178 Z" fill="#f4ebd9" opacity="0.6"/>
+        <path d="M 30,172 Q 10,170 0,178 Q 20,180 45,178 Z" fill="#f4ebd9" opacity="0.4"/>
+      </svg>
+    </div>
+
+    <!-- Scroll cue -->
+    <div class="scroll-cue absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 text-deep/70">
+      <div class="font-mono text-[0.65rem] tracking-[0.3em] uppercase">Descend</div>
+      <svg width="12" height="18" viewBox="0 0 12 18" fill="none"><path d="M6 1v15m0 0l-5-5m5 5l5-5" stroke="currentColor" stroke-width="1.2"/></svg>
+    </div>
+  </section>
+
+  <!--
+    ========================================================================
+    CONTENT — THE DESTINATION
+    Deep-blue themed. Editorial two-column layout. CTA.
+    ========================================================================
+  -->
+  <section id="content" class="vignette relative py-28 md:py-40 px-6 md:px-12">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- Chapter tag + big editorial number -->
+      <div class="flex items-baseline justify-between mb-16 md:mb-24">
+        <div class="chapter-tag">Chapter II · The Destination</div>
+        <div class="big-num text-brass/30 text-[6rem] md:text-[9rem] select-none">02</div>
+      </div>
+
+      <!-- Headline -->
+      <h2 class="font-display font-light text-bone tracking-mega leading-[0.95]
+                 text-[clamp(2.4rem,6.5vw,5.5rem)] max-w-4xl">
+        Where the water
+        <span class="italic font-normal text-brass">turns</span>
+        to ink, the work begins.
+      </h2>
+
+      <!-- Thin rule -->
+      <div class="rule-thin my-16 md:my-20"></div>
+
+      <!-- Two-column editorial body -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16">
+
+        <!-- Left: label column -->
+        <aside class="md:col-span-3 space-y-6">
+          <div>
+            <div class="chapter-tag mb-2">§ 01</div>
+            <div class="font-display text-bone text-xl">On Cargo</div>
+          </div>
+          <p class="font-mono text-xs text-bone/50 leading-relaxed">
+            Filed from the wheelhouse, 03:14 ship's time. Transcribed by the second mate.
+          </p>
+        </aside>
+
+        <!-- Middle column -->
+        <div class="md:col-span-4 space-y-5 font-display text-bone/85 text-[1.05rem] leading-[1.7]">
+          <p class="first-letter:float-left first-letter:font-display first-letter:font-medium first-letter:text-6xl first-letter:leading-[0.85] first-letter:mr-2 first-letter:mt-1 first-letter:text-brass">
+            Every voyage is a small act of faith — a wager against weather, ledger, and time. The Meridian carries twenty-two thousand containers across ocean corridors older than any nation she flies.
+          </p>
+          <p>
+            We do not move boxes. We move the promises packed inside them: grain for Lagos, turbines for Dakar, medicine for ports whose names our grandfathers never learned to spell.
+          </p>
+        </div>
+
+        <!-- Right column -->
+        <div class="md:col-span-5 space-y-5 font-display text-bone/75 text-[1rem] leading-[1.75]">
+          <p>
+            The route from <span class="text-brass font-medium">Rotterdam</span> to <span class="text-brass font-medium">Singapore</span> crosses four seas, one canal, and a thousand quiet hours where nothing happens but the low hum of the engine and the turning of pages in the mess. This is the texture of the trade: long stretches of ordinary, punctuated by the exacting choreography of port.
+          </p>
+          <p>
+            Meridian Line keeps a fleet of seventeen vessels. They sail under a plain white flag with a single rust-coloured stripe — our reminder that the work is unglamorous, dependable, and absolutely necessary.
+          </p>
+          <!-- Factoids -->
+          <div class="grid grid-cols-3 gap-6 pt-6 border-t border-bone/10">
+            <div>
+              <div class="big-num text-brass text-4xl">17</div>
+              <div class="font-mono text-[0.65rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Active vessels</div>
+            </div>
+            <div>
+              <div class="big-num text-brass text-4xl">142</div>
+              <div class="font-mono text-[0.65rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Ports served</div>
+            </div>
+            <div>
+              <div class="big-num text-brass text-4xl">29y</div>
+              <div class="font-mono text-[0.65rem] tracking-[0.2em] uppercase text-bone/50 mt-2">Since launch</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA block -->
+      <div class="mt-24 md:mt-32 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 border-t border-bone/15 pt-12">
+        <div>
+          <div class="chapter-tag mb-3">Book passage</div>
+          <p class="font-display text-bone text-2xl md:text-3xl max-w-xl leading-tight">
+            Request a manifest slot on the next eastbound crossing.
+          </p>
+        </div>
+        <button class="btn-voyage" type="button">
+          Get Started
+          <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><path d="M1 5h12m0 0L9 1m4 4L9 9" stroke="currentColor" stroke-width="1.3"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!--
+    ========================================================================
+    FOOTER — small, typographic, punctuation only
+    ========================================================================
+  -->
+  <footer class="relative px-6 md:px-12 py-10 border-t border-bone/10 bg-trench">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4 font-mono text-[0.7rem] tracking-[0.22em] uppercase text-bone/40">
+      <div>© MMXXVI · Meridian Line Shipping Co.</div>
+      <div class="flex gap-8">
+        <a href="#" class="hover:text-bone transition">Privacy</a>
+        <a href="#" class="hover:text-bone transition">Manifest</a>
+        <a href="#" class="hover:text-bone transition">Careers</a>
       </div>
     </div>
+  </footer>
 
-    <div class="bar-row bar-3 fade-up" style="animation-delay:240ms">
-      <div class="bar-meta">
-        <span class="bar-name">Browser APIs</span>
-        <span class="bar-pct bar-pct-3">85%</span>
-      </div>
-      <div class="bar-track thick">
-        <div class="bar-fill"></div>
-      </div>
-    </div>
-
-    <div class="bar-row bar-4 fade-up" style="animation-delay:280ms">
-      <div class="bar-meta">
-        <span class="bar-name">Patience with IE</span>
-        <span class="bar-pct bar-pct-4">61%</span>
-      </div>
-      <div class="bar-track thick">
-        <div class="bar-fill"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<hr>
-
-<!-- ════════════════════════ § 03 — CARDS ════════════════════════ -->
-<div class="section">
-  <div class="section-num slide-left">03 — Staggered pop-in</div>
-  <h2 class="slide-left" style="animation-delay:50ms">
-    Each card arrives<br>a beat apart.
-  </h2>
-  <p class="slide-left" style="animation-delay:100ms">
-    Siblings share one <code>@keyframes popIn</code> but carry different
-    <code>animation-delay</code> values. The cascade costs zero extra code.
-  </p>
-
-  <div class="cards">
-    <div class="card">
-      <div class="card-dot" style="background:var(--accent)"></div>
-      <h3>Triggered</h3>
-      <p>Fires once as the element crosses into the viewport — clean, intentional.</p>
-    </div>
-    <div class="card">
-      <div class="card-dot" style="background:var(--accent2)"></div>
-      <h3>Scrubbed</h3>
-      <p>Locked to scroll position in real time — grow, shrink, rewind.</p>
-    </div>
-    <div class="card">
-      <div class="card-dot" style="background:var(--accent3)"></div>
-      <h3>Staggered</h3>
-      <p>Sequential delays make a single entrance feel choreographed.</p>
-    </div>
-  </div>
-</div>
-
-<hr>
-
-<!-- ════════════════════════ § 04 — WORD REVEAL ════════════════════════ -->
-<div class="section">
-  <div class="section-num slide-left">04 — Word-by-word reveal</div>
-  <h2 class="slide-left" style="animation-delay:50ms">
-    Reading speed<br>as animation.
-  </h2>
-  <p class="slide-left" style="animation-delay:100ms">
-    Each word is its own <code>&lt;span&gt;</code> with an independent
-    <code>animation-timeline: view()</code> and staggered delay.
-    The text illuminates as it enters.
-  </p>
-
-  <p class="big-quote">
-    <span class="reveal-word">The&nbsp;</span><span class="reveal-word">browser&nbsp;</span><span class="reveal-word">always&nbsp;</span><span class="reveal-word">knew&nbsp;</span><span class="reveal-word">how&nbsp;</span><span class="reveal-word">to&nbsp;</span><span class="reveal-word">do&nbsp;</span><span class="reveal-word">this.&nbsp;</span><span class="reveal-word">We&nbsp;</span><span class="reveal-word">just&nbsp;</span><span class="reveal-word">had&nbsp;</span><span class="reveal-word">to&nbsp;</span><span class="reveal-word">stop&nbsp;</span><span class="reveal-word">reaching&nbsp;</span><span class="reveal-word">for&nbsp;</span><span class="reveal-word">libraries.</span>
-  </p>
-</div>
-
-<hr>
-
-<!-- ════════════════════════ § 05 — SPIN ════════════════════════ -->
-<div class="section">
-  <div class="section-num slide-left">05 — Rotate on entry</div>
-  <h2 class="slide-left" style="animation-delay:50ms">
-    A full rotation<br>as a hello.
-  </h2>
-  <p class="slide-left" style="animation-delay:100ms">
-    Combining <code>rotate(-200deg)</code> and <code>scale(0.4)</code> in
-    one keyframe. Works especially well for badges, logos, or counters.
-  </p>
-
-  <div class="emblem-row">
-    <div class="emblem">
-      <span class="emblem-num" style="color:var(--accent)">01</span>
-      <span class="emblem-label">Trigger</span>
-    </div>
-    <div class="emblem">
-      <span class="emblem-num" style="color:var(--accent2)">02</span>
-      <span class="emblem-label">Scrub</span>
-    </div>
-    <div class="emblem">
-      <span class="emblem-num" style="color:var(--accent3)">03</span>
-      <span class="emblem-label">Stagger</span>
-    </div>
-    <div class="emblem">
-      <span class="emblem-num" style="color:var(--muted)">04</span>
-      <span class="emblem-label">Rotate</span>
-    </div>
-  </div>
-</div>
-
-<hr>
-
-<!-- FOOTER -->
-<footer>
-  <span class="footer-brand">Scroll · Driven</span>
-  <span class="footer-note">CSS animation-timeline · No JS required</span>
-</footer>
-
+  <!-- Scroll-linked animation logic -->
+  <script src="script.js"></script>
 </body>
 </html>
