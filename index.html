@@ -250,23 +250,6 @@
   
   <section id="hero" class="relative w-full h-screen overflow-hidden hero-bg">
 
-    <!-- 
-    <div class="absolute top-0 left-0 right-0 z-20 border-b border-white/10 bg-black/5 backdrop-blur-sm overflow-hidden">
-      <div class="py-2.5 overflow-hidden">
-        <div class="ticker-track font-mono text-[0.7rem] tracking-[0.25em] uppercase text-bone/80">
-          <span>◆ Størst grill gjør folk ville</span>
-          <span>◆ Ryktene sier at den så ut som bark</span>
-          <span>◆ Tenk på alle de fattige barna i...</span>
-          <span>◆ "MJØNDARN"</span>
-          <span>◆ Poleren og Keegen sett slåss</span>
-          <span>◆ Broiler - The Beginning</span>
-          <span>◆ Både kebabflekker og bukse fra SWAG</span>
-          <span>◆ Det er rave</span>
-        </div>
-      </div>
-    </div>
-  -->
-
     <!-- Top-left masthead -->
     <header class="absolute top-14 left-0 right-0 z-20 px-6 md:px-12">
       <div class="flex items-start justify-between">
@@ -363,45 +346,28 @@
       <!-- Ice cream cone — double scoop, centered in 200×300 viewBox -->
       <svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg" class="h-auto block mx-auto" style="max-width:220px">
 
-        <!-- ── CONE ─────────────────────────────────────────── -->
-        <path d="M 68,178 L 100,285 L 132,178 Z" fill="#d4a574"/>
-        <!-- Waffle grid: horizontal lines narrowing toward the tip -->
-        <g stroke="#b8894e" stroke-width="0.8" opacity="0.6">
-          <line x1="70" y1="185" x2="130" y2="185"/>
-          <line x1="72" y1="197" x2="128" y2="197"/>
-          <line x1="75" y1="210" x2="125" y2="210"/>
-          <line x1="79" y1="224" x2="121" y2="224"/>
-          <line x1="84" y1="238" x2="116" y2="238"/>
-          <line x1="90" y1="252" x2="110" y2="252"/>
-          <!-- Vertical ridges -->
-          <line x1="84" y1="178" x2="100" y2="285"/>
-          <line x1="100" y1="178" x2="100" y2="285"/>
-          <line x1="116" y1="178" x2="100" y2="285"/>
-        </g>
-        <!-- Left-edge highlight -->
-        <path d="M 68,178 L 84,178 L 100,285 Z" fill="#e0b882" opacity="0.35"/>
-
+        
         <!-- ── BOTTOM SCOOP — vanilla ───────────────────────── -->
         <ellipse cx="100" cy="150" rx="38" ry="36" fill="#f4ebd9"/>
         <ellipse cx="112" cy="158" rx="22" ry="20" fill="#ece0c8" opacity="0.5"/>  <!-- shadow -->
         <ellipse cx="86"  cy="138" rx="14" ry="12" fill="#fff"    opacity="0.3"/>  <!-- highlight -->
-
+        
         <!-- ── TOP SCOOP — strawberry ──────────────────────── -->
         <ellipse cx="100" cy="108" rx="34" ry="33" fill="#c96f4a"/>
         <ellipse cx="112" cy="116" rx="18" ry="16" fill="#b05a38" opacity="0.45"/> <!-- shadow -->
         <ellipse cx="86"  cy="97"  rx="12" ry="10" fill="#e08060" opacity="0.4"/>  <!-- highlight -->
-
+        
         <!-- ── DRIPS ────────────────────────────────────────── -->
         <!-- Vanilla drip down the right side of the bottom scoop -->
         <path d="M 130,155 Q 136,162 133,172 Q 130,178 127,172 Q 124,162 128,155 Z" fill="#f4ebd9"/>
         <!-- Strawberry drip down the right side of the top scoop -->
         <path d="M 126,118 Q 132,126 130,138 Q 128,144 124,138 Q 121,128 124,118 Z" fill="#c96f4a"/>
-
+        
         <!-- ── CHERRY ────────────────────────────────────────── -->
         <circle cx="100" cy="76" r="9" fill="#c0392b"/>
         <circle cx="97"  cy="73" r="3" fill="#e05050" opacity="0.6"/> <!-- shine -->
         <path d="M 100,67 Q 108,55 114,50" stroke="#3a2a1a" stroke-width="1.8" fill="none" stroke-linecap="round"/> <!-- stem -->
-
+        
         <!-- ── SPRINKLES on top scoop ──────────────────────── -->
         <!-- Cream-coloured sprinkles -->
         <g fill="#f4ebd9" opacity="0.7">
@@ -415,13 +381,32 @@
           <rect x="82"  y="108" width="7" height="2.5" rx="1" transform="rotate(10 82 108)"/>
           <rect x="103" y="113" width="6" height="2.5" rx="1" transform="rotate(-25 103 113)"/>
         </g>
+        <!-- ── CONE ─────────────────────────────────────────── -->
+        <path d="M 68,170 L 100,285 L 132,170 Z" fill="#d4a574"/>
+        <!-- Waffle grid: horizontal lines narrowing toward the tip -->
+        <g stroke="#b8894e" stroke-width="0.8" opacity="0.6">
+          <line x1="70" y1="175" x2="130" y2="175"/>
+          <line x1="72" y1="187" x2="128" y2="187"/>
+          <line x1="75" y1="200" x2="125" y2="200"/>
+          <line x1="79" y1="214" x2="121" y2="214"/>
+          <line x1="84" y1="228" x2="116" y2="228"/>
+          <line x1="90" y1="242" x2="110" y2="242"/>
+          <!-- Vertical ridges -->
+          <line x1="84" y1="170" x2="100" y2="285"/>
+          <line x1="100" y1="170" x2="100" y2="285"/>
+          <line x1="116" y1="170" x2="100" y2="285"/>
+        </g>
+        <!-- Left-edge highlight -->
+        <path d="M 68,170 L 84,170 L 100,285 Z" fill="#e0b882" opacity="0.35"/>
       </svg>
     </div>
 
-    <!-- Scroll cue -->
-    <div class="scroll-cue absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 text-deep/70">
-      <div class="font-mono text-[0.65rem] tracking-[0.3em] uppercase">Del II</div>
-      <svg width="12" height="18" viewBox="0 0 12 18" fill="none"><path d="M6 1v15m0 0l-5-5m5 5l5-5" stroke="currentColor" stroke-width="1.2"/></svg>
+    <!-- Scroll cue — outer div controls horizontal position, inner div animates vertically -->
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+      <div class="scroll-cue flex flex-col items-center gap-2 text-deep/70">
+        <div class="font-mono text-[0.65rem] tracking-[0.3em] uppercase pl-[0.3em]" style="word-spacing:-0.15em">Del II</div>
+        <svg width="12" height="18" viewBox="0 0 12 18" fill="none"><path d="M6 1v15m0 0l-5-5m5 5l5-5" stroke="currentColor" stroke-width="1.2"/></svg>
+      </div>
     </div>
   </section>
 
