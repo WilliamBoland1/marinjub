@@ -1,24 +1,24 @@
 /* ============================================================================
- * Meridian Line — Ship-Scroll
+ * To is — Solnedgang-Scroll
  * ----------------------------------------------------------------------------
  * Scroll-linked hero animation using GSAP + ScrollTrigger.
  *
  * Behaviour
  * ---------
- * • Hero section is pinned for the duration of the voyage animation.
- * • Ship translates vertically from its starting position (bottom of viewport)
- *   up and past the top edge. The motion is "scrubbed" — tied 1:1 to scroll
- *   progress so the user controls the pace.
- * • Background shifts from a bright morning palette (sky → horizon → sea)
- *   into the deep abyss that the content section sits in, producing a seamless
- *   hand-off to Chapter II.
- * • Decorative elements (wave layers, headline copy, scroll cue) fade and
- *   drift to emphasise the descent.
+ * • Hero section is pinned for the duration of the sunset animation.
+ * • Ice cream translates vertically from its starting position (bottom of
+ *   viewport) up and past the top edge. The motion is "scrubbed" — tied 1:1
+ *   to scroll progress so the user controls the pace.
+ * • Background shifts from a bright sunset palette (sky → horizon → sea)
+ *   into the deep night that the content section sits in, producing a seamless
+ *   hand-off to Del II.
+ * • Decorative elements (waves, sand dune, headline, scroll cue) fade and
+ *   drift as the sun sets and darkness falls.
  *
  * Customisation
  * -------------
  * • Tweak PIN_DURATION to shorten/lengthen the scroll distance required to
- *   complete the voyage.
+ *   complete the sunset animation.
  * • Palette stops are defined in CSS custom properties (see index.html) and
  *   referenced here by name — change them in one place.
  * ========================================================================== */
@@ -31,7 +31,7 @@
 
   // Wait for GSAP to be available (loaded via CDN in the head).
   if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-    console.warn('[Meridian] GSAP or ScrollTrigger failed to load.');
+    console.warn('[ToIs] GSAP or ScrollTrigger failed to load.');
     return;
   }
 
@@ -42,7 +42,7 @@
    * ------------------------------------------------------------------------ */
   // How much scroll distance the pinned hero consumes.
   // "+=150%" means the user must scroll 1.5× the viewport height to complete
-  // the voyage animation. Increase for a slower, more cinematic scrub.
+  // the sunset animation. Increase for a slower, more cinematic scrub.
   const PIN_DURATION = '+=150%';
 
 
@@ -58,14 +58,14 @@
    * Main scroll-triggered timeline
    * ------------------------------------------------------------------------ */
   const hero     = document.querySelector('#hero');
-  const ship     = document.querySelector('#ship');
+  const iceCream = document.querySelector('#ship');
   const headline = document.querySelector('.hero-headline');
   const waves    = document.querySelectorAll('#hero .wave');
-  const haze     = document.querySelector('#hero .horizon-haze');
+  const dune     = document.querySelector('#hero .horizon-haze');
   const cue      = document.querySelector('.scroll-cue');
 
-  if (!hero || !ship) {
-    console.warn('[Meridian] Hero or ship element missing — aborting animation.');
+  if (!hero || !iceCream) {
+    console.warn('[ToIs] Hero or ice cream element missing — aborting animation.');
     return;
   }
 
@@ -83,43 +83,42 @@
     },
   });
 
-  // -- Background gradient: shift from morning to abyss --------------------
+  // -- Background: shift from sunset to deep night --------------------------
   //
   // We animate the `background` property directly. GSAP tweens the gradient
-  // stops (it understands the syntax), producing a smooth colour transition
-  // rather than a hard swap.
+  // stops, producing a smooth colour transition rather than a hard swap.
   tl.to(hero, {
     background: `linear-gradient(180deg, #1e1b4b 0%, #1e1b4b 100%)`,
     duration: 1,
   }, 0);
 
-  // -- Ship: travel from bottom of viewport to above the top --------------
+  // -- Ice cream: float upward from beach toward the darkening sky ----------
   //
-  // Starting transform is handled by CSS (bottom: 8vh, translateX(-50%)).
+  // Starting transform is handled by CSS (bottom: 14vh, translateX(-50%)).
   // We translate it upward by roughly 120vh so it fully exits the viewport.
   // A tiny horizontal drift adds parallax personality without feeling wobbly.
-  tl.to(ship, {
+  tl.to(iceCream, {
     y:     '-120vh',
     x:     '-20px',
     scale: 0.92,
     duration: 1,
   }, 0);
 
-  // -- Waves: drift downward and fade as we descend -----------------------
+  // -- Waves: drift down and fade — fully gone by ~50% of the scroll --------
   waves.forEach((wave, i) => {
     tl.to(wave, {
       y:       30 + i * 20,
       opacity: 0,
-      duration: 1,
+      duration: 0.5,
     }, 0);
   });
 
-  // -- Horizon haze: fades as the horizon itself disappears ---------------
-  if (haze) {
-    tl.to(haze, { opacity: 0, duration: 0.6 }, 0);
+  // -- Sand dune: fades out by ~35% of the scroll ---------------------------
+  if (dune) {
+    tl.to(dune, { opacity: 0, duration: 0.35 }, 0);
   }
 
-  // -- Headline: drifts up and fades ~40% into the scroll -----------------
+  // -- Headline: drifts up and fades early in the scroll --------------------
   if (headline) {
     tl.to(headline, {
       y:       -60,
@@ -128,7 +127,7 @@
     }, 0);
   }
 
-  // -- Scroll cue: fades out almost immediately ---------------------------
+  // -- Scroll cue: fades out almost immediately -----------------------------
   if (cue) {
     tl.to(cue, { opacity: 0, duration: 0.15 }, 0);
   }
@@ -143,7 +142,7 @@
   });
 
   /* --------------------------------------------------------------------------
-   * Content section: gentle reveal of the factoids and CTA on entry.
+   * Del II: gentle reveal of the dialogue and CTA on entry.
    * Purely decorative — not scrubbed, just a one-shot fade-in.
    * ------------------------------------------------------------------------ */
   gsap.from('#content h2', {
@@ -171,7 +170,3 @@
     },
   });
 })();
-
-console.log("hero:", document.querySelector("#hero"));
-console.log("ship:", document.querySelector("#ship"));
-console.log("content:", document.querySelector("#content"));
