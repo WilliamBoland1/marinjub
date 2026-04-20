@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>To is — Første nettside</title>
+  <meta name="description" content="En rulletekst-animasjon der en softis beveger seg mot himmelen mens solen går ned over havet." />
+
+  <!-- Tailwind via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Distinctive font pairing: serif display + mono utility -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,700;9..144,900&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!--
+    ========================================================================
+    TAILWIND CONFIG — extend with beach/sunset palette + fonts
+    ========================================================================
+  -->
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['Fraunces', 'Georgia', 'serif'],
+          mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        },
+        colors: {
+          surface:  'var(--c-surface)',
+          horizon:  'var(--c-horizon)',
+          deep:     'var(--c-deep)',
+          abyss:    'var(--c-abyss)',
+          trench:   'var(--c-trench)',
+          bone:     '#fff8e7',
+          rust:     '#f4845f',
+          brass:    '#f9c74f',
+          bone:     '#fff8e7',
+          rust:     '#f4845f',
+          brass:    '#f9c74f',
+        },
+        letterSpacing: {
+          'mega': '-0.04em',
+        }
+      }
+    }
+  }
+</script>
+  <!--
+    ========================================================================
+    BASE STYLES — custom properties, grain texture, typography polish
+    ========================================================================
+  -->
+  <style>
+    :root {
+      --c-surface: #fef3c7;
+      --c-horizon: #f97316;
+      --c-deep:    #dc2626;
+      --c-abyss:   #1e1b4b;
+      --c-trench:  #07030f;
+      --c-bone:    #fff8e7;
+      --c-rust:    #ff6b35;
+      --c-brass:   #ffd166;
+    }
+
+    html { scroll-behavior: auto; }  /* GSAP handles smoothness */
+    body {
+      font-family: 'Fraunces', Georgia, serif;
+      background: var(--c-abyss);
+      color: var(--c-bone);
+      overflow-x: hidden;
+    }
+
+  .hero-bg {
+    background:
+      linear-gradient(
+        180deg,
+        #fef3c7 0%,
+        #fbbf24 10%,
+        #f97316 26%,
+        #dc2626 43%,
+        #f97316 50%,
+        #0ea5e9 59%,
+        #0369a1 73%,
+        #1e1b4b 100%
+      );
+    }
+
+    #hero::after {
+        content: '';
+        position: absolute;
+        left: 0; right: 0; bottom: 0;
+        height: 120px;
+        background: linear-gradient(
+          to bottom,
+          transparent,
+          rgba(30,27,75,0.06)
+        );
+      pointer-events: none;
+    }
+
+    /* Subtle film grain overlay — gives the whole page a printed feel */
+    .grain::after {
+      content: '';
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 100;
+      opacity: 0.08; mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.55'/></svg>");
+    }
+
+    /* Sand dune — distant background element, sits behind the wave layers */
+    .horizon-haze {
+      position: absolute;
+      left: -5%; right: -5%;
+      top: 48%;
+      height: 240px;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Parallax wave layers */
+    .wave {
+      position: absolute;
+      left: -5%; right: -5%;
+      height: 180px;
+      pointer-events: none;
+    }
+
+    /* Ice cream wrapper — positioned absolutely, animated by GSAP */
+    .ship-wrap {
+      position: absolute;
+      left: 50%;
+      bottom: 14vh;
+      transform: translateX(-50%);
+      width: min(560px, 72vw);
+      will-change: transform;
+      filter: drop-shadow(0 30px 40px rgba(5,11,23,0.55));
+      z-index: 10;
+    }
+
+    /* Ice cream gently bobs — compounds with GSAP scroll transform */
+    @keyframes bob {
+      0%,100% { transform: translateX(-50%) translateY(0) rotate(-0.3deg); }
+      50%     { transform: translateX(-50%) translateY(-6px) rotate(0.3deg); }
+    }
+    .ship-wrap { animation: bob 4.5s ease-in-out infinite; }
+
+    /* Marquee ticker at top of hero */
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .ticker-track {
+      display: inline-flex;
+      gap: 3rem;
+      animation: ticker 45s linear infinite;
+      white-space: nowrap;
+    }
+
+    /* Large editorial number styling */
+    .big-num {
+      font-family: 'Fraunces', serif;
+      font-variation-settings: "opsz" 144, "wght" 300;
+      letter-spacing: -0.05em;
+      line-height: 0.85;
+    }
+
+    /* Hand-drawn underline accent */
+    .scribble {
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 8'><path d='M2 5 Q 50 1, 100 4 T 198 3' stroke='%23c96f4a' stroke-width='2' fill='none' stroke-linecap='round'/></svg>");
+      background-repeat: no-repeat;
+      background-position: 0 100%;
+      background-size: 100% 0.5em;
+      padding-bottom: 0.15em;
+    }
+
+    /* CTA button */
+    .btn-voyage {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.9rem;
+      padding: 1.1rem 2.2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--c-abyss);
+      background: var(--c-bone);
+      border: none;
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.3s;
+    }
+    .btn-voyage::before {
+      content: '';
+      position: absolute; inset: 0;
+      border: 1px solid var(--c-bone);
+      transform: translate(8px, 8px);
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+    .btn-voyage:hover { transform: translate(-2px, -2px); background: var(--c-brass); }
+    .btn-voyage:hover::before { transform: translate(12px, 12px); }
+
+    /* Thin rules as editorial dividers */
+    .rule-thin { border-top: 1px solid rgba(244,235,217,0.18); }
+
+    /* Number label badges (mono, rotated slightly) */
+    .chapter-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--c-brass);
+    }
+
+    /* Section with vignette */
+    .vignette {
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(20,5,60,0.05) 0%, transparent 55%),
+        var(--c-abyss);
+    }
+
+    /* Scroll cue */
+    @keyframes cueDown {
+      0%,100% { transform: translateY(0); opacity: 0.6; }
+      50%     { transform: translateY(6px); opacity: 1; }
+    }
+    .scroll-cue { animation: cueDown 2s ease-in-out infinite; }
+
+    /* Reduce motion respect */
+    @media (prefers-reduced-motion: reduce) {
+      .ship-wrap, .ticker-track, .scroll-cue { animation: none; }
+    }
+  </style>
+</head>
+<body class="grain antialiased">
+
+  <!--
+    ========================================================================
+    HERO — DEL I
+    Pinned. Is-kremen beveger seg oppover mens solnedgangen mørkes til natt.
+    ========================================================================
+  -->
+
+  
+  <section id="hero" class="relative w-full h-screen overflow-hidden hero-bg">
+
+    <!-- Top-left masthead -->
+    <header class="absolute top-6 left-0 right-0 z-20 px-6 md:px-12">
+      <div class="flex items-start justify-between">
+        <div>
+          <div class="chapter-tag text-bone/70">Est. 2026</div>
+          <h1 class="font-display text-2xl md:text-3xl font-medium text-bone tracking-mega leading-none mt-1">
+            Første nettside
+          </h1>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero headline: anchored top-center, over the sky -->
+    <div class="hero-headline absolute top-[13%] left-0 right-0 z-10 px-6 md:px-12 text-center">
+      <div class="chapter-tag text-bone/70 mb-4">Del I · Velkommen</div>
+      <h2 class="font-display font-light text-bone tracking-mega leading-[0.9]
+                 text-[clamp(2.8rem,9vw,7.5rem)]">
+        Et ønske om<span class="italic font-normal scribble"> To is</span>
+        <br/>
+      </h2>
+      <p class="mt-6 max-w-xl mx-auto font-mono text-[0.78rem] md:text-xs tracking-[0.2em] uppercase text-deep/70">
+        Bla ned for å se mer.
+      </p>
+    </div>
+
+  <!-- Sand dune — distant background, behind all wave layers -->
+  <div class="horizon-haze">
+    <svg viewBox="0 0 1200 240" preserveAspectRatio="none" style="width:100%;height:100%;display:block;">
+      <!-- Far/pale dune crest (most distant, lightest) -->
+      <path d="M0,88 C160,44 360,82 560,54 C760,26 960,68 1200,44 L1200,240 L0,240 Z" fill="#f5e4a8" opacity="0.45"/>
+      <!-- Main dune body -->
+      <path d="M0,112 C220,64 450,108 680,76 C880,48 1060,92 1200,70 L1200,240 L0,240 Z" fill="#d9a840"/>
+      <!-- Dune front slope — darker for depth -->
+      <path d="M0,134 C260,98 520,134 770,102 C970,76 1110,116 1200,96 L1200,240 L0,240 Z" fill="#b88820" opacity="0.8"/>
+      <!-- Subtle dune-top grass tufts -->
+      <g fill="#8a6e10" opacity="0.35">
+        <path d="M180,104 C182,90 186,82 184,78 C188,82 192,88 190,104 Z"/>
+        <path d="M186,104 C188,86 193,76 191,72 C195,76 199,84 197,104 Z"/>
+        <path d="M420,80 C422,66 426,58 424,54 C428,58 432,64 430,80 Z"/>
+        <path d="M428,80 C430,62 435,52 433,48 C437,52 441,60 439,80 Z"/>
+        <path d="M710,70 C712,56 716,48 714,44 C718,48 722,54 720,70 Z"/>
+        <path d="M718,70 C720,52 725,42 723,38 C727,42 731,50 729,70 Z"/>
+        <path d="M950,84 C952,70 956,62 954,58 C958,62 962,68 960,84 Z"/>
+        <path d="M958,84 C960,66 965,56 963,52 C967,56 971,64 969,84 Z"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Wave 1 — crashing at the dune base, breaking with white foam -->
+  <svg class="wave" style="bottom: 14vh; opacity: 1; z-index: 2;" viewBox="0 0 1200 130" preserveAspectRatio="none">
+    <!-- Wave body -->
+    <path d="M0,50 C180,18 390,72 610,42 C820,12 1030,62 1200,36 L1200,130 L0,130 Z" fill="#2a8fc9"/>
+    <!-- Foam crest — white band along the breaking edge -->
+    <path d="M0,50 C180,18 390,72 610,42 C820,12 1030,62 1200,36
+             L1200,47 C1030,73 820,23 610,53 C390,83 180,29 0,61 Z" fill="rgba(255,255,255,0.55)"/>
+  </svg>
+
+  <!-- Wave 2 — mid-distance, deeper blue with light foam -->
+  <svg class="wave" style="bottom: 5vh; opacity: 0.97; z-index: 3;" viewBox="0 0 1200 130" preserveAspectRatio="none">
+    <!-- Wave body -->
+    <path d="M0,55 C240,88 500,22 755,55 C980,84 1120,34 1200,55 L1200,130 L0,130 Z" fill="#0f5a8a"/>
+    <!-- Subtle foam crest -->
+    <path d="M0,55 C240,88 500,22 755,55 C980,84 1120,34 1200,55
+             L1200,65 C1120,45 980,94 755,66 C500,33 240,98 0,66 Z" fill="rgba(255,255,255,0.22)"/>
+  </svg>
+
+  <!-- Wave 3 — foreground, transitioning to content colour -->
+  <svg class="wave" style="bottom: -3vh; opacity: 1; z-index: 4;" viewBox="0 0 1200 130" preserveAspectRatio="none">
+    <path d="M0,50 C220,82 440,20 660,50 C880,82 1060,30 1200,50 L1200,130 L0,130 Z" fill="#1e1b4b"/>
+  </svg>
+
+  <!-- Wave 4 — base fill matching the content section exactly -->
+  <svg class="wave" style="bottom: -14vh; opacity: 1; z-index: 5;" viewBox="0 0 1200 130" preserveAspectRatio="none">
+    <path d="M0,80 C300,120 600,20 900,80 C1050,110 1150,60 1200,80 L1200,130 L0,130 Z" fill="#1e1b4b"/>
+  </svg>
+
+    <!-- IS-KREM — dobbel-skje, sentrert i 200×300 viewBox -->
+    <div class="ship-wrap" id="ship">
+      <svg viewBox="0 0 200 300" xmlns="http://www.w3.org/2000/svg" class="h-auto block mx-auto" style="max-width:220px">
+
+        
+        <!-- ── BOTTOM SCOOP — vanilla ───────────────────────── -->
+        <ellipse cx="100" cy="150" rx="38" ry="36" fill="#f4ebd9"/>
+        <ellipse cx="112" cy="158" rx="22" ry="20" fill="#ece0c8" opacity="0.5"/>  <!-- shadow -->
+        <ellipse cx="86"  cy="138" rx="14" ry="12" fill="#fff"    opacity="0.3"/>  <!-- highlight -->
+        
+        <!-- ── TOP SCOOP — strawberry ──────────────────────── -->
+        <ellipse cx="100" cy="108" rx="34" ry="33" fill="#c96f4a"/>
+        <ellipse cx="112" cy="116" rx="18" ry="16" fill="#b05a38" opacity="0.45"/> <!-- shadow -->
+        <ellipse cx="86"  cy="97"  rx="12" ry="10" fill="#e08060" opacity="0.4"/>  <!-- highlight -->
+        
+        <!-- ── DRIPS ────────────────────────────────────────── -->
+        <!-- Vanilla drip down the right side of the bottom scoop -->
+        <path d="M 130,155 Q 136,162 133,172 Q 130,178 127,172 Q 124,162 128,155 Z" fill="#f4ebd9"/>
+        <!-- Strawberry drip down the right side of the top scoop -->
+        <path d="M 126,118 Q 132,126 130,138 Q 128,144 124,138 Q 121,128 124,118 Z" fill="#c96f4a"/>
+        
+        <!-- ── CHERRY ────────────────────────────────────────── -->
+        <circle cx="100" cy="76" r="9" fill="#c0392b"/>
+        <circle cx="97"  cy="73" r="3" fill="#e05050" opacity="0.6"/> <!-- shine -->
+        <path d="M 100,67 Q 108,55 114,50" stroke="#3a2a1a" stroke-width="1.8" fill="none" stroke-linecap="round"/> <!-- stem -->
+        
+        <!-- ── SPRINKLES on top scoop ──────────────────────── -->
+        <!-- Cream-coloured sprinkles -->
+        <g fill="#f4ebd9" opacity="0.7">
+          <rect x="90"  y="98"  width="8" height="2.5" rx="1" transform="rotate(-20 90 98)"/>
+          <rect x="108" y="105" width="8" height="2.5" rx="1" transform="rotate(15 108 105)"/>
+          <rect x="95"  y="118" width="7" height="2.5" rx="1" transform="rotate(40 95 118)"/>
+          <rect x="113" y="96"  width="7" height="2.5" rx="1" transform="rotate(-35 113 96)"/>
+        </g>
+        <!-- Gold sprinkles -->
+        <g fill="#d4a574" opacity="0.8">
+          <rect x="82"  y="108" width="7" height="2.5" rx="1" transform="rotate(10 82 108)"/>
+          <rect x="103" y="113" width="6" height="2.5" rx="1" transform="rotate(-25 103 113)"/>
+        </g>
+        <!-- ── CONE ─────────────────────────────────────────── -->
+        <path d="M 68,170 L 100,285 L 132,170 Z" fill="#d4a574"/>
+        <!-- Waffle grid: horizontal lines narrowing toward the tip -->
+        <g stroke="#b8894e" stroke-width="0.8" opacity="0.6">
+          <line x1="70" y1="175" x2="130" y2="175"/>
+          <line x1="72" y1="187" x2="128" y2="187"/>
+          <line x1="75" y1="200" x2="125" y2="200"/>
+          <line x1="79" y1="214" x2="121" y2="214"/>
+          <line x1="84" y1="228" x2="116" y2="228"/>
+          <line x1="90" y1="242" x2="110" y2="242"/>
+          <!-- Vertical ridges -->
+          <line x1="84" y1="170" x2="100" y2="285"/>
+          <line x1="100" y1="170" x2="100" y2="285"/>
+          <line x1="116" y1="170" x2="100" y2="285"/>
+        </g>
+        <!-- Left-edge highlight -->
+        <path d="M 68,170 L 84,170 L 100,285 Z" fill="#e0b882" opacity="0.35"/>
+      </svg>
+    </div>
+
+    <!-- Scroll cue — outer div controls horizontal position, inner div animates vertically -->
+    <div class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20">
+      <div class="scroll-cue flex flex-col items-center gap-2 text-deep/70">
+        <div class="font-mono text-[0.65rem] tracking-[0.3em] uppercase pl-[0.3em]" style="word-spacing:-0.15em">Del II</div>
+        <svg width="12" height="18" viewBox="0 0 12 18" fill="none"><path d="M6 1v15m0 0l-5-5m5 5l5-5" stroke="currentColor" stroke-width="1.2"/></svg>
+      </div>
+    </div>
+  </section>
+
+  <!--
+    ========================================================================
+    CONTENT — DEL II
+    Mørk kveldsstemning. Redaksjonell to-kolonne layout. Dialogen.
+    ========================================================================
+  -->
+  <section id="content" class="vignette relative py-28 md:py-40 px-6 md:px-12">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- Chapter tag + big editorial number -->
+      <div class="flex items-baseline justify-between mb-16 md:mb-24">
+        <div class="chapter-tag">Del II · Historien</div>
+        <div class="big-num text-brass/30 text-[6rem] md:text-[9rem] select-none">02</div>
+      </div>
+
+      <!-- Headline -->
+      <h2 class="font-display font-light text-bone tracking-mega leading-[0.95]
+                 text-[clamp(2.4rem,6.5vw,5.5rem)] max-w-4xl">
+        Hvor filmens ord blir til
+        <span class="italic font-normal text-brass">blekk.</span>
+      </h2>
+
+            <!-- CTA block -->
+      <div class="mt-24 md:mt-32 flex flex-col md:flex-row items-start md:items-center justify-between gap-8 border-t border-b border-bone/15 py-12">
+        <div>
+          <div class="chapter-tag mb-3">Scene</div>
+          <p class="font-display text-bone text-2xl md:text-3xl max-w-xl leading-tight">
+            En kort samtale om to is.
+          </p>
+        </div>
+      </div>
+
+
+        <!-- Dialogue block -->
+        <div class="md:col-span-8 space-y-3 font-display text-bone/85 text-[1.05rem] leading-[1.7] mt-16 md:mt-20">
+
+          <!-- Row 1 -->
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Slutt da.</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Kom igjen da.</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Du skal ikke ha is nå.</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Det er kaldt ute, og du har nettopp spist frokost.</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Kom igjen da.</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8"></div>
+            <div class="pl-8">Jeg har lyst på is.</div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Har du bra med penger til det?</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8"></div>
+            <div class="pl-8">Ja.</div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Hva slags is er det du skal ha?</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8"></div>
+            <div class="pl-8">Skal ha den.</div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Fint. Den?</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8"></div>
+            <div class="pl-8">To is.</div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Hæ?</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8"></div>
+            <div class="pl-8">Jeg vil ha to is.</div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Du skal ha én is.</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8"></div>
+            <div class="pl-8">Jeg vil ha to is.</div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Hør nå. Det har du ikke penger til. Ok? Har du penger til det?</div>
+            <div class="pl-8"></div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8"></div>
+            <div class="pl-8">Ja.</div>
+          </div>
+
+          <div class="grid grid-cols-2 divide-x divide-bone/15">
+            <div class="pr-8">Nei, det har du ikke.</div>
+            <div class="pl-8"></div>
+          </div>
+
+        </div>
+
+        <!-- End scene -->
+        <div class="mt-20 flex flex-col items-center gap-4 text-center">
+          <div class="flex items-center gap-4 w-full max-w-sm">
+            <div class="flex-1 border-t border-bone/20"></div>
+            <span class="font-mono text-[0.65rem] tracking-[0.4em] uppercase text-bone/35">Slutt</span>
+            <div class="flex-1 border-t border-bone/20"></div>
+          </div>
+          <div class="font-display italic text-bone/20 text-[0.8rem] tracking-wide">— scene —</div>
+          <a href="https://www.youtube.com/watch?v=WOFyWYZZGc0" target="_blank" rel="noopener" class="mt-6 btn-voyage">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0C.488 3.45.029 5.804 0 12c.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0C23.512 20.55 23.971 18.196 24 12c-.029-6.185-.484-8.549-4.385-8.816zM9 16V8l8 4-8 4z"/></svg>
+            Se originalscenen
+          </a>
+        </div>
+
+      </div>
+    </section>
+  <!--
+    ========================================================================
+    FOOTER — small, typographic, punctuation only
+    ========================================================================
+  -->
+  <footer class="relative px-6 md:px-12 py-10 border-t border-bone/10 bg-trench">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4 font-mono text-[0.7rem] tracking-[0.22em] uppercase text-bone/70">
+      <div>Marin teknikk · Jubileum 2026</div>
+      <div>
+        Lurer du på noe om Jubileum? les Marina utgaven fra forrige gang!
+        <a href="https://storage.googleapis.com/mannhullet_media_prod/TMR105.pdf?X-Goog-Algorithm=GOOG4-RSA-SHA256&X-Goog-Credential=mannhullet-service%40mannhulletweb.iam.gserviceaccount.com%2F20260419%2Fauto%2Fstorage%2Fgoog4_request&X-Goog-Date=20260419T123701Z&X-Goog-Expires=86400&X-Goog-SignedHeaders=host&X-Goog-Signature=7f2f602f377daf2e515f98fd5ba41f9b22a2b88bfc0f864379124626c578be255732984a24300c7aaa8b605a473ddb03bf9057b9f2520c5db6424716d0d7b5c4141504457c76bb5dd7aeb235868cfe8bb55decad84db4a2b39c08a647067cd7524a9424306566fd90ec397dc718c1c9c4673c37bcc1e41aad3526c647794d318d86668017f19d5b0850070110d251fb02c5bcc5b7ae82004abeca21e654fddd986e43ea4719db89102b2efc0715cb55c8674998548fcae2c1b3fc8fde5db51515761149bd41f88a1b7cc044226ea79888aa294355b5bad46d73e418695059a0eab6e38ad795c437d9ec13e4720f47c85c5a717f60a28874cf34db2d71aaacb8b" target="_blank" rel="noopener" class="ml-2 underline hover:text-bone transition">Trykk her</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scroll-linked animation logic -->
+  <script src="script.js" defer></script>
+</body>
+</html>
