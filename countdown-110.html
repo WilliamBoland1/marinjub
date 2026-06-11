@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marin Teknikk 110-år</title>
+
+  <!-- Fonts: high-contrast serif for display, clean sans for labels -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #050b14;
+      --ink: #eef3fa;
+      --accent: #5b82c4;
+      --accent-dim: #3d5a8a;
+      --watermark: #1e2f4d;
+      --glow: rgba(91, 130, 196, 0.16);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ---- Giant watermark letters behind everything ---- */
+    .watermark {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: clamp(10rem, 40vw, 30rem);
+      letter-spacing: 0.12em;
+      color: var(--bg);
+      text-shadow:
+        0 0 50px rgba(91, 130, 196, 0.13),
+        0 0 120px rgba(91, 130, 196, 0.06);
+      user-select: none;
+      pointer-events: none;
+      line-height: 1;
+      z-index: 0;
+    }
+
+    .watermark span { margin-right: -0.12em; }
+
+
+    /* ---- Main content ---- */
+    .content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 2rem;
+      padding-bottom: 3.5rem; /* offsets eyebrow height so countdown center = viewport center */
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .eyebrow {
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.2s forwards;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: clamp(2.6rem, 7vw, 6rem);
+      line-height: 1.05;
+      margin-bottom: 4.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.4s forwards;
+    }
+
+    /* ---- Countdown ---- */
+    .countdown {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: clamp(0.8rem, 4vw, 3.5rem);
+      margin-bottom: 4.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.6s forwards;
+    }
+
+    .unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: clamp(3.5rem, 12vw, 9rem);
+    }
+
+    .unit .value {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: clamp(3.2rem, 10vw, 8.5rem);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .unit .label {
+      margin-top: 1rem;
+      font-size: 0.78rem;
+      font-weight: 400;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: #93a6c2;
+    }
+
+    .separator {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      padding-top: clamp(1rem, 3.5vw, 3rem);
+    }
+
+    .separator span {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+    }
+
+    /* ---- Footer line ---- */
+    /* top: 50% = vertical center of viewport (where NTH is centered)
+       + half the NTH font-size = bottom edge of the NTH letters
+       + small gap */
+    .footer {
+      position: absolute;
+      top: calc(50% + clamp(5rem, 20vw, 15rem) + 1.5rem);
+      left: 0;
+      right: 0;
+      text-align: center;
+      z-index: 2;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.8s forwards;
+    }
+
+    .footer hr {
+      border: none;
+      border-top: 1px solid rgba(147, 166, 194, 0.25);
+      width: 160px;
+      margin: 0 auto 1.6rem;
+    }
+
+    .footer p {
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .footer .dates {
+      margin-bottom: 0.6rem;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .eyebrow, h1, .countdown, .footer {
+        animation: none;
+        opacity: 1;
+      }
+    }
+
+    /* ---- Mobile tweaks ---- */
+    @media (max-width: 600px) {
+      .separator span { width: 6px; height: 6px; }
+      .separator { gap: 0.6rem; }
+      h1 { margin-bottom: 3rem; }
+      .countdown { margin-bottom: 3rem; }
+      .watermark { font-size: 14rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="watermark" aria-hidden="true"><span>NTH</span></div>
+
+  <main class="content">
+    <p class="eyebrow">Marin Teknikk 110-år</p>
+
+    <div class="countdown" role="timer" aria-live="polite">
+      <div class="unit">
+        <span class="value" id="days">00</span>
+        <span class="label">Days</span>
+      </div>
+      <div class="separator" aria-hidden="true"><span></span><span></span></div>
+      <div class="unit">
+        <span class="value" id="hours">00</span>
+        <span class="label">Hours</span>
+      </div>
+      <div class="separator" aria-hidden="true"><span></span><span></span></div>
+      <div class="unit">
+        <span class="value" id="minutes">00</span>
+        <span class="label">Minutes</span>
+      </div>
+      <div class="separator" aria-hidden="true"><span></span><span></span></div>
+      <div class="unit">
+        <span class="value" id="seconds">00</span>
+        <span class="label">Seconds</span>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="footer">
+    <hr>
+    <p class="dates">3. mars – 8. mars</p>
+    <p>Hold av datoen</p>
+  </div>
+
+  <script>
+    // ============================================
+    //  CHANGE THIS to your event date and time
+    // ============================================
+    const TARGET_DATE = new Date('2026-09-01T18:00:00+02:00');
+
+    const els = {
+      days: document.getElementById('days'),
+      hours: document.getElementById('hours'),
+      minutes: document.getElementById('minutes'),
+      seconds: document.getElementById('seconds'),
+    };
+
+    function pad(n) {
+      return String(n).padStart(2, '0');
+    }
+
+    function tick() {
+      const diff = TARGET_DATE - new Date();
+
+      if (diff <= 0) {
+        els.days.textContent = '00';
+        els.hours.textContent = '00';
+        els.minutes.textContent = '00';
+        els.seconds.textContent = '00';
+        clearInterval(timer);
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      els.days.textContent = pad(Math.floor(totalSeconds / 86400));
+      els.hours.textContent = pad(Math.floor((totalSeconds % 86400) / 3600));
+      els.minutes.textContent = pad(Math.floor((totalSeconds % 3600) / 60));
+      els.seconds.textContent = pad(totalSeconds % 60);
+    }
+
+    tick();
+    const timer = setInterval(tick, 1000);
+  </script>
+
+</body>
+</html>
