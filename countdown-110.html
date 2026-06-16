@@ -31,7 +31,8 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
       position: relative;
     }
 
@@ -174,13 +175,47 @@
       margin-bottom: 0.6rem;
     }
 
+    /* ---- Bottom links (Info / Kontakt oss) ---- */
+    .bottom-links {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 1.25rem;
+      padding-bottom: env(safe-area-inset-bottom);
+      text-align: center;
+      z-index: 3;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 1s forwards;
+    }
+
+    .bottom-links a {
+      color: #93a6c2;
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .bottom-links a:hover,
+    .bottom-links a:focus-visible {
+      color: var(--accent);
+      text-decoration: underline;
+    }
+
+    .bottom-links span {
+      margin: 0 0.8em;
+      color: var(--accent-dim);
+    }
+
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(18px); }
       to   { opacity: 1; transform: translateY(0); }
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .eyebrow, h1, .countdown, .footer {
+      .eyebrow, h1, .countdown, .footer, .bottom-links {
         animation: none;
         opacity: 1;
       }
@@ -193,6 +228,19 @@
       h1 { margin-bottom: 3rem; }
       .countdown { margin-bottom: 3rem; }
       .watermark { font-size: 14rem; }
+      .footer { padding-bottom: 2.5rem; }
+    }
+
+    /* ---- Small phones: prevent the countdown row from overflowing ---- */
+    @media (max-width: 420px) {
+      .content { padding-left: 1rem; padding-right: 1rem; }
+      .countdown { gap: 0.5rem; }
+      .unit { min-width: 2.4rem; }
+      .unit .value { font-size: 2.2rem; }
+      .unit .label { font-size: 0.6rem; letter-spacing: 0.2em; margin-top: 0.6rem; }
+      .separator { gap: 0.5rem; padding-top: 0.7rem; }
+      .bottom-links { font-size: 0.62rem; letter-spacing: 0.25em; }
+      .bottom-links span { margin: 0 0.6em; }
     }
   </style>
 </head>
@@ -231,6 +279,12 @@
     <hr>
     <p class="dates">3. mars – 8. mars</p>
     <p>Hold av datoen</p>
+  </div>
+
+  <div class="bottom-links">
+    <a href="info.html">Info</a>
+    <span aria-hidden="true">&middot;</span>
+    <a href="kontakt.html">Kontakt oss</a>
   </div>
 
   <script>
