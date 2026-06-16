@@ -72,6 +72,8 @@
     }
 
     .eyebrow {
+      position: relative;
+      top: -1rem;
       font-size: 0.85rem;
       font-weight: 500;
       letter-spacing: 0.45em;
@@ -227,8 +229,11 @@
       .separator { gap: 0.6rem; }
       h1 { margin-bottom: 3rem; }
       .countdown { margin-bottom: 3rem; }
-      .watermark { font-size: 14rem; }
-      .footer { padding-bottom: 2.5rem; }
+      .watermark { font-size: clamp(6.5rem, 38vw, 14rem); }
+      .footer {
+        padding-bottom: 2.5rem;
+        top: calc(50% + clamp(6.5rem, 38vw, 14rem) / 2 + 1.5rem);
+      }
     }
 
     /* ---- Small phones: prevent the countdown row from overflowing ---- */
