@@ -11,15 +11,15 @@
 
   <style>
     :root {
-      --bg: #0a111e;
-      --bg-soft: #0e1729;
+      --bg: #050b14;
+      --bg-soft: #091125;
       --ink: #eef3fa;
       --muted: #93a6c2;
       --accent: #5b82c4;
       --accent-dim: #3d5a8a;
       --line: rgba(147, 166, 194, 0.18);
-      --watermark: #121d31;
-      --glow: rgba(91, 130, 196, 0.14);
+      --watermark: #1e2f4d;
+      --glow: rgba(91, 130, 196, 0.16);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -130,12 +130,13 @@
 
     .bottom-nav {
       position: relative; z-index: 2;
-      border-top: 1px solid var(--line);
       padding: 1.6rem 1rem 2.2rem;
       display: flex; justify-content: center; gap: 2rem;
     }
     .bottom-nav a {
-      color: var(--muted); text-decoration: none;
+      color: rgba(147, 166, 194, 0.55);
+      text-decoration: underline;
+      text-underline-offset: 4px;
       font-size: 0.82rem; letter-spacing: 0.14em; text-transform: uppercase;
       transition: color 0.2s ease;
     }
@@ -162,21 +163,21 @@
     <section class="people" aria-label="Kontaktpersoner">
 
       <div class="person">
-        <div class="avatar" aria-hidden="true">?</div>
+        <div class="avatar" style="background-image:url('static/bilde (1).jpg')" aria-hidden="true"></div>
         <div class="role">Generelle henvendelser</div>
         <h3>[Navn]</h3>
         <a class="mail" href="mailto:jubkom-leder@mannhullet.no">jubkom-leder@mannhullet.no</a>
       </div>
 
       <div class="person">
-        <div class="avatar" aria-hidden="true">?</div>
+        <div class="avatar" style="background-image:url('static/bilde (2).jpg')" aria-hidden="true"></div>
         <div class="role">Sponsing &amp; bedrift</div>
         <h3>[Navn]</h3>
         <a class="mail" href="mailto:jubkom-spons@mannhullet.no">jubkom-spons@mannhullet.no</a>
       </div>
 
       <div class="person">
-        <div class="avatar" aria-hidden="true">?</div>
+        <div class="avatar" style="background-image:url('static/bilde (3).jpg')" aria-hidden="true"></div>
         <div class="role">Trøbbel med nettsiden</div>
         <h3>[Navn]</h3>
         <a class="mail" href="mailto:jubkom-web@mannhullet.no">jubkom-web@mannhullet.no</a>

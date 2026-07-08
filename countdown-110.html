@@ -182,33 +182,31 @@
       position: fixed;
       left: 0;
       right: 0;
-      bottom: 1.25rem;
-      padding-bottom: env(safe-area-inset-bottom);
-      text-align: center;
+      bottom: 0;
+      padding: 1.6rem 1rem calc(2.2rem + env(safe-area-inset-bottom));
+      background: var(--bg);
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
       z-index: 3;
-      font-size: 0.72rem;
+      font-size: 0.82rem;
       font-weight: 500;
-      letter-spacing: 0.35em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       opacity: 0;
       animation: fadeUp 0.9s ease 1s forwards;
     }
 
     .bottom-links a {
-      color: #93a6c2;
-      text-decoration: none;
+      color: rgba(147, 166, 194, 0.55);
+      text-decoration: underline;
+      text-underline-offset: 4px;
       transition: color 0.2s ease;
     }
 
     .bottom-links a:hover,
     .bottom-links a:focus-visible {
-      color: var(--accent);
-      text-decoration: underline;
-    }
-
-    .bottom-links span {
-      margin: 0 0.8em;
-      color: var(--accent-dim);
+      color: var(--ink);
     }
 
     @keyframes fadeUp {
@@ -244,8 +242,7 @@
       .unit .value { font-size: 2.2rem; }
       .unit .label { font-size: 0.6rem; letter-spacing: 0.2em; margin-top: 0.6rem; }
       .separator { gap: 0.5rem; padding-top: 0.7rem; }
-      .bottom-links { font-size: 0.62rem; letter-spacing: 0.25em; }
-      .bottom-links span { margin: 0 0.6em; }
+      .bottom-links { font-size: 0.62rem; letter-spacing: 0.25em; gap: 1.2rem; }
     }
   </style>
 </head>
@@ -259,22 +256,22 @@
     <div class="countdown" role="timer" aria-live="polite">
       <div class="unit">
         <span class="value" id="days">00</span>
-        <span class="label">Days</span>
+        <span class="label">Dager</span>
       </div>
       <div class="separator" aria-hidden="true"><span></span><span></span></div>
       <div class="unit">
         <span class="value" id="hours">00</span>
-        <span class="label">Hours</span>
+        <span class="label">Timer</span>
       </div>
       <div class="separator" aria-hidden="true"><span></span><span></span></div>
       <div class="unit">
         <span class="value" id="minutes">00</span>
-        <span class="label">Minutes</span>
+        <span class="label">Minutter</span>
       </div>
       <div class="separator" aria-hidden="true"><span></span><span></span></div>
       <div class="unit">
         <span class="value" id="seconds">00</span>
-        <span class="label">Seconds</span>
+        <span class="label">Sekunder</span>
       </div>
     </div>
 
@@ -282,13 +279,12 @@
 
   <div class="footer">
     <hr>
-    <p class="dates">3. mars – 8. mars</p>
+    <p class="dates">29. januar – 6. februar</p>
     <p>Hold av datoen</p>
   </div>
 
   <div class="bottom-links">
-    <a href="info.html">Info</a>
-    <span aria-hidden="true">&middot;</span>
+    <a href="om-jubileet.html">Om jubileet</a>
     <a href="kontakt.html">Kontakt oss</a>
   </div>
 
@@ -296,7 +292,7 @@
     // ============================================
     //  CHANGE THIS to your event date and time
     // ============================================
-    const TARGET_DATE = new Date('2026-09-01T18:00:00+02:00');
+    const TARGET_DATE = new Date('2027-01-29T00:00:00+01:00');
 
     const els = {
       days: document.getElementById('days'),

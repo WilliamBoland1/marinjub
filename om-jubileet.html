@@ -11,15 +11,15 @@
 
   <style>
     :root {
-      --bg: #0a111e;
-      --bg-soft: #0e1729;
+      --bg: #050b14;
+      --bg-soft: #091125;
       --ink: #eef3fa;
       --muted: #93a6c2;
       --accent: #5b82c4;
       --accent-dim: #3d5a8a;
       --line: rgba(147, 166, 194, 0.18);
-      --watermark: #121d31;
-      --glow: rgba(91, 130, 196, 0.14);
+      --watermark: #1e2f4d;
+      --glow: rgba(91, 130, 196, 0.16);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -156,12 +156,13 @@
     /* ---- Bottom nav ---- */
     .bottom-nav {
       position: relative; z-index: 2;
-      border-top: 1px solid var(--line);
       padding: 1.6rem 1rem 2.2rem;
       display: flex; justify-content: center; gap: 2rem;
     }
     .bottom-nav a {
-      color: var(--muted); text-decoration: none;
+      color: rgba(147, 166, 194, 0.55);
+      text-decoration: underline;
+      text-underline-offset: 4px;
       font-size: 0.82rem; letter-spacing: 0.14em; text-transform: uppercase;
       transition: color 0.2s ease;
     }
@@ -186,7 +187,7 @@
       <span class="years">1917 – 2027</span>
     </div>
 
-    <p class="eyebrow">[Fyll inn dato] · 2027</p>
+    <p class="eyebrow">29. januar – 6. februar · 2027</p>
     <h1 class="title">Mannhullet fyller 110 år</h1>
 
     <section class="letter">
