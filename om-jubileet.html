@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Om jubileet — Marin Teknikk 110 år</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #0a111e;
+      --bg-soft: #0e1729;
+      --ink: #eef3fa;
+      --muted: #93a6c2;
+      --accent: #5b82c4;
+      --accent-dim: #3d5a8a;
+      --line: rgba(147, 166, 194, 0.18);
+      --watermark: #121d31;
+      --glow: rgba(91, 130, 196, 0.14);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      position: relative;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .watermark {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: clamp(18rem, 55vw, 44rem);
+      color: var(--watermark);
+      user-select: none; pointer-events: none;
+      line-height: 1; z-index: 0; opacity: 0.55;
+    }
+    .glow {
+      position: fixed; width: 480px; height: 480px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+      pointer-events: none; z-index: 0;
+    }
+    .glow--tl { top: -100px; left: -80px; }
+    .glow--br { bottom: -140px; right: -100px; }
+
+    .wrap {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: clamp(3rem, 8vw, 5.5rem) clamp(1.5rem, 6vw, 2rem) 2rem;
+    }
+
+    /* ---- Logo / visual placeholder (swap the whole .emblem for an <img>) ---- */
+    .emblem {
+      width: clamp(140px, 34vw, 190px);
+      aspect-ratio: 1;
+      margin: 0 auto clamp(2.5rem, 7vw, 3.75rem);
+      border: 1px solid var(--accent-dim);
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(91,130,196,0.14), transparent 70%),
+        var(--bg-soft);
+      box-shadow: 0 0 60px rgba(91,130,196,0.10);
+    }
+    .emblem .num {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: clamp(2.8rem, 10vw, 3.9rem);
+      line-height: 0.9;
+    }
+    .emblem .name {
+      margin-top: 0.5rem;
+      font-size: 0.62rem; letter-spacing: 0.24em; text-transform: uppercase;
+      color: var(--muted); text-align: center;
+    }
+    .emblem .years {
+      margin-top: 0.25rem;
+      font-size: 0.62rem; letter-spacing: 0.18em; color: var(--accent);
+    }
+
+    .eyebrow {
+      font-size: 0.78rem; font-weight: 500;
+      letter-spacing: 0.34em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1.1rem; text-align: center;
+    }
+    .title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: clamp(2.1rem, 6vw, 3.4rem);
+      line-height: 1.06; margin-bottom: 3rem; text-align: center;
+    }
+
+    /* placeholder text = clearly "fill in yourselves" */
+    .ph { color: var(--muted); font-style: italic; }
+
+    /* ---- Welcome letter ---- */
+    .letter { margin-bottom: 3.25rem; }
+    .letter .salut {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: clamp(1.5rem, 4vw, 2.1rem);
+      margin-bottom: 1.4rem;
+    }
+    .letter p { font-size: clamp(1.02rem, 2.3vw, 1.15rem); margin-bottom: 1.25rem; }
+    .sign { margin-top: 1.8rem; font-family: 'Playfair Display', serif; }
+    .sign .who { font-size: 1.3rem; font-weight: 700; }
+    .sign .role { font-size: 0.95rem; color: var(--muted); font-style: italic; }
+
+    /* ---- Week of events (lean list) ---- */
+    .block { margin-bottom: 2.5rem; }
+    .block h2 {
+      font-size: 0.75rem; font-weight: 500;
+      letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1.3rem;
+      display: flex; align-items: center; gap: 0.9rem;
+    }
+    .block h2::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+
+    .week { list-style: none; display: grid; gap: 0; }
+    .week li {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .week li:first-child { padding-top: 0; }
+    .week li:last-child { border-bottom: none; padding-bottom: 0; }
+    .week b { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.15rem; }
+    .week .tag {
+      flex: none;
+      font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--accent); border: 1px solid var(--accent-dim);
+      border-radius: 999px; padding: 0.22rem 0.7rem;
+    }
+
+    .note { color: var(--muted); font-size: 0.9rem; margin-top: 1.3rem; }
+
+    /* ---- Bottom nav ---- */
+    .bottom-nav {
+      position: relative; z-index: 2;
+      border-top: 1px solid var(--line);
+      padding: 1.6rem 1rem 2.2rem;
+      display: flex; justify-content: center; gap: 2rem;
+    }
+    .bottom-nav a {
+      color: var(--muted); text-decoration: none;
+      font-size: 0.82rem; letter-spacing: 0.14em; text-transform: uppercase;
+      transition: color 0.2s ease;
+    }
+    .bottom-nav a:hover { color: var(--ink); }
+
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
+    @media (max-width: 560px) { .watermark { font-size: 12rem; } }
+  </style>
+</head>
+<body>
+
+  <div class="watermark" aria-hidden="true">NTH</div>
+  <div class="glow glow--tl" aria-hidden="true"></div>
+  <div class="glow glow--br" aria-hidden="true"></div>
+
+  <main class="wrap">
+
+    <!-- LOGO / VISUAL: replace this whole block with <img src="logo.png" alt="..."> -->
+    <div class="emblem" aria-label="Mannhullet 110 år">
+      <span class="num">110</span>
+      <span class="name">Mannhullet</span>
+      <span class="years">1917 – 2027</span>
+    </div>
+
+    <p class="eyebrow">[Fyll inn dato] · 2027</p>
+    <h1 class="title">Mannhullet fyller 110 år</h1>
+
+    <section class="letter">
+      <p class="salut">Ærede Mannhullitter!</p>
+      <p class="ph">
+        [Skriv velkomstteksten deres her. Fortell kort at Mannhullet fyller 110 år,
+        at det feires med en hel uke, og at alle årskull er velkomne — gjerne med
+        en avsluttende «Hold av datoen».]
+      </p>
+      <div class="sign">
+        <div class="who ph">[Navn]</div>
+        <div class="role">Leder av Jubileumskomiteen</div>
+      </div>
+    </section>
+
+    <div class="block">
+      <h2>En uke med feiring</h2>
+      <ul class="week">
+        <li><b>Åpningsfest</b><span class="tag">Sosialt</span></li>
+        <li><b>Faglig program</b><span class="tag">Faglig</span></li>
+        <li><b>Konserter</b><span class="tag">Kultur</span></li>
+        <li><b>Konkurranser &amp; aktiviteter</b><span class="tag">Sosialt</span></li>
+        <li><b>Jubileumsrevy</b><span class="tag">Kultur</span></li>
+        <li><b>Returnerende helg</b><span class="tag">Alumni</span></li>
+        <li><b>Jubileumsgalla</b><span class="tag">Finale</span></li>
+      </ul>
+      <p class="note ph">[Eksempler på hva uka kan inneholde — bytt ut med deres eget program når det er klart.]</p>
+    </div>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <a href="countdown-110.html">Nedtelling</a>
+    <a href="kontakt.html">Kontakt oss</a>
+  </nav>
+
+</body>
+</html>
