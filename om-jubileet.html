@@ -32,7 +32,8 @@
       font-family: 'Inter', sans-serif;
       line-height: 1.5;
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
       height: 100dvh;
       display: flex;
       flex-direction: column;
@@ -67,12 +68,10 @@
       width: 100%;
       max-width: 680px;
       margin: 0 auto;
-      padding: clamp(3rem, 22vh, 10.5rem) clamp(1.25rem, 5vw, 2.5rem) clamp(0.5rem, 2vh, 1.5rem);
+      padding: clamp(3rem, 24vh, 11rem) clamp(1.25rem, 5vw, 2.5rem) clamp(0.5rem, 2vh, 1.5rem);
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      min-height: 0;
-      overflow: hidden;
     }
 
     /* ---- Corner brand mark: fixed to the true viewport corner, not the centered column ---- */
@@ -130,15 +129,62 @@
     }
     .bottom-nav a:hover { color: var(--ink); }
 
+    /* ---- Corner social links: mirrors the logo corner on the opposite side ---- */
+    .social-links {
+      position: fixed;
+      top: clamp(0.9rem, 3vh, 1.75rem);
+      right: clamp(0.9rem, 3vw, 1.75rem);
+      z-index: 3;
+      display: flex;
+      gap: clamp(0.7rem, 2vw, 1.1rem);
+    }
+    .social-links a {
+      display: flex;
+      color: rgba(147, 166, 194, 0.55);
+      transition: color 0.2s ease;
+    }
+    .social-links a:hover,
+    .social-links a:focus-visible { color: var(--ink); }
+    .social-links svg {
+      width: clamp(18px, 2.4vw, 22px);
+      height: clamp(18px, 2.4vw, 22px);
+    }
+
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
     @media (max-width: 600px) { .watermark { font-size: clamp(6.5rem, 38vw, 14rem); } }
 
+    /* ---- Landscape phones: shrink vertical rhythm so the letter fits without
+       relying on the scroll fallback (covers phone landscape heights ~320-430px) ---- */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .wrap {
+        padding-top: clamp(2.5rem, 14vh, 4rem);
+        padding-bottom: 0.5rem;
+      }
+      .watermark { font-size: clamp(5rem, 34vh, 10rem); }
+      .eyebrow { margin-bottom: 0.4rem; font-size: 0.64rem; }
+      .title {
+        font-size: clamp(1.3rem, 5vh, 2rem);
+        margin-bottom: 0.6rem;
+      }
+      .letter .salut {
+        font-size: clamp(1rem, 3.6vh, 1.3rem);
+        margin-bottom: 0.4rem;
+      }
+      .letter p {
+        font-size: 0.82rem;
+        margin-bottom: 0.4rem;
+      }
+      .sign { margin-top: 0.5rem; }
+      .bottom-nav { padding: 0.5rem 1rem; }
+    }
+
     /* ---- Entrance fade, matching the countdown page ---- */
-    .emblem, .eyebrow, .title, .letter, .bottom-nav {
+    .emblem, .eyebrow, .title, .letter, .bottom-nav, .social-links {
       opacity: 0;
       animation: fadeUp 0.9s ease forwards;
     }
     .emblem { animation-delay: 0.1s; }
+    .social-links { animation-delay: 0.1s; }
     .eyebrow { animation-delay: 0.3s; }
     .title { animation-delay: 0.45s; }
     .letter { animation-delay: 0.6s; }
@@ -150,7 +196,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .emblem, .eyebrow, .title, .letter, .bottom-nav {
+      .emblem, .eyebrow, .title, .letter, .bottom-nav, .social-links {
         animation: none;
         opacity: 1;
       }
@@ -161,9 +207,23 @@
 
   <div class="watermark" aria-hidden="true"><span>NTH</span></div>
 
-  <main class="wrap">
-
+  <a href="countdown-110.html">
     <img class="emblem" src="logo.png" alt="Mannhullet / NTH 110 år — 1917–2027">
+  </a>
+
+  <div class="social-links">
+    <a href="https://www.instagram.com/jub110_mannhullet/" target="_blank" rel="noopener" aria-label="Instagram">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+    </a>
+    <a href="https://www.facebook.com/people/110-%C3%A5rs-jubileum-Mannhullet/61590599620480/" target="_blank" rel="noopener" aria-label="Facebook">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+    </a>
+    <a href="https://www.strava.com/athletes/134381213" target="_blank" rel="noopener" aria-label="Strava">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 2 11 13 14.5 13 10.5 22 17 10 13.5 10 17 2"></polyline></svg>
+    </a>
+  </div>
+
+  <main class="wrap">
 
     <p class="eyebrow">29. januar – 6. februar · 2027</p>
     <h1 class="title">Mannhullet fyller 110 år</h1>
@@ -171,12 +231,13 @@
     <section class="letter">
       <p class="salut">Ærede Mannhullitter!</p>
       <p class="ph">
-        [Skriv velkomstteksten deres her. Fortell kort at Mannhullet fyller 110 år,
-        at det feires med en hel uke, og at alle årskull er velkomne — gjerne med
-        en avsluttende «Hold av datoen».]
+        [Fyller inn teksten her med en kort hilsen fre Pers hvor han snakker om hvor kult det blir osv.
+        Dette er en placeholder som skal byttes ut med den faktiske teksten.
+        Sikkert fint å få med litt datoer, praktisk info hvor informasjon koemmer, hvilke datoer det gjelder,
+        også hype det opp litt]
       </p>
       <div class="sign">
-        <div class="who ph">[Navn]</div>
+        <div class="who ph">Von Person</div>
         <div class="role">Leder av Jubileumskomiteen</div>
       </div>
     </section>
@@ -184,7 +245,6 @@
   </main>
 
   <nav class="bottom-nav">
-    <a href="countdown-110.html">Nedtelling</a>
     <a href="kontakt.html">Kontakt oss</a>
   </nav>
 
