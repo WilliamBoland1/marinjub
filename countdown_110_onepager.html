@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marin Teknikk 110-år</title>
+
+  <!-- Fonts: high-contrast serif for display, clean sans for labels -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #050b14;
+      --ink: #eef3fa;
+      --accent: #5b82c4;
+      --accent-dim: #3d5a8a;
+      --watermark: #1e2f4d;
+      --glow: rgba(91, 130, 196, 0.16);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ---- Giant watermark letters behind everything (stays fixed for the whole scroll) ---- */
+    .watermark {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: clamp(10rem, 40vw, 30rem);
+      letter-spacing: 0.12em;
+      color: var(--bg);
+      text-shadow:
+        0 0 50px rgba(91, 130, 196, 0.13),
+        0 0 120px rgba(91, 130, 196, 0.06);
+      user-select: none;
+      pointer-events: none;
+      line-height: 1;
+      z-index: 0;
+    }
+
+    .watermark span { margin-right: -0.12em; }
+
+
+    /* ---- Main content ---- */
+    .content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      padding: 2rem;
+      padding-bottom: 3.5rem; /* offsets eyebrow height so countdown center = viewport center */
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .eyebrow {
+      position: relative;
+      top: -1rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.45em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.2s forwards;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: clamp(2.6rem, 7vw, 6rem);
+      line-height: 1.05;
+      margin-bottom: 4.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.4s forwards;
+    }
+
+    /* ---- Countdown ---- */
+    .countdown {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      gap: clamp(0.8rem, 4vw, 3.5rem);
+      margin-bottom: 4.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.6s forwards;
+    }
+
+    .unit {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: clamp(3.5rem, 12vw, 9rem);
+    }
+
+    .unit .value {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: clamp(3.2rem, 10vw, 8.5rem);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .unit .label {
+      margin-top: 1rem;
+      font-size: 0.78rem;
+      font-weight: 400;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: #93a6c2;
+    }
+
+    .separator {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      padding-top: clamp(1rem, 3.5vw, 3rem);
+    }
+
+    .separator span {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--accent-dim);
+    }
+
+    /* ---- Scroll sections: Informasjon / Kontakt oss live below the countdown,
+       on the same background, and cross-fade in/out near the screen edges ---- */
+    .section {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .fade-content {
+      width: 100%;
+    }
+
+    .section-inner {
+      width: 100%;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: clamp(4rem, 12vw, 6rem) 2rem;
+      text-align: center;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 800;
+      font-size: clamp(1.9rem, 5vw, 3rem);
+      line-height: 1.15;
+      margin-bottom: 1.4rem;
+    }
+
+    .section-text {
+      max-width: 460px;
+      margin: 0 auto 2.75rem;
+      font-size: clamp(1rem, 2.2vw, 1.1rem);
+      color: #c3d0e2;
+    }
+
+    /* ---- Informasjon: week list ---- */
+    .week-list {
+      list-style: none;
+      max-width: 460px;
+      margin: 0 auto;
+      text-align: left;
+    }
+
+    .week-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      padding: 0.85rem 0;
+      border-bottom: 1px solid rgba(147, 166, 194, 0.18);
+    }
+
+    .week-list li:first-child { padding-top: 0; }
+    .week-list li:last-child { border-bottom: none; padding-bottom: 0; }
+
+    .week-list b {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    .week-list .tag {
+      flex: none;
+      font-size: 0.64rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid var(--accent-dim);
+      border-radius: 999px;
+      padding: 0.2rem 0.65rem;
+    }
+
+    /* ---- Kontakt oss: simple contact list ---- */
+    .contact-list {
+      list-style: none;
+      display: grid;
+      gap: 1.75rem;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .contact-list .role {
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 0.5rem;
+    }
+
+    .contact-list a.mail {
+      color: var(--ink);
+      text-decoration: none;
+      font-size: 0.95rem;
+      border-bottom: 1px solid var(--accent-dim);
+      padding-bottom: 2px;
+      transition: border-color 0.2s ease;
+    }
+
+    .contact-list a.mail:hover,
+    .contact-list a.mail:focus-visible {
+      border-color: var(--accent);
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .eyebrow, h1, .countdown {
+        animation: none;
+        opacity: 1;
+      }
+      .fade-content {
+        opacity: 1 !important;
+      }
+    }
+
+    /* ---- Mobile tweaks: scroll sections ---- */
+    @media (max-width: 600px) {
+      .week-list li { padding: 0.7rem 0; }
+    }
+
+    /* ---- Mobile tweaks ---- */
+    @media (max-width: 600px) {
+      .separator span { width: 6px; height: 6px; }
+      .separator { gap: 0.6rem; }
+      h1 { margin-bottom: 3rem; }
+      .countdown { margin-bottom: 3rem; }
+      .watermark { font-size: clamp(6.5rem, 38vw, 14rem); }
+    }
+
+    /* ---- Small phones: prevent the countdown row from overflowing ---- */
+    @media (max-width: 420px) {
+      .content { padding-left: 1rem; padding-right: 1rem; }
+      .countdown { gap: 0.5rem; }
+      .unit { min-width: 2.4rem; }
+      .unit .value { font-size: 2.2rem; }
+      .unit .label { font-size: 0.6rem; letter-spacing: 0.2em; margin-top: 0.6rem; }
+      .separator { gap: 0.5rem; padding-top: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="watermark" aria-hidden="true"><span>NTH</span></div>
+
+  <section id="hero" class="section">
+    <div class="fade-content">
+      <main class="content">
+        <p class="eyebrow">Marin Teknikk 110-år</p>
+
+        <div class="countdown" role="timer" aria-live="polite">
+          <div class="unit">
+            <span class="value" id="days">00</span>
+            <span class="label">Dager</span>
+          </div>
+          <div class="separator" aria-hidden="true"><span></span><span></span></div>
+          <div class="unit">
+            <span class="value" id="hours">00</span>
+            <span class="label">Timer</span>
+          </div>
+          <div class="separator" aria-hidden="true"><span></span><span></span></div>
+          <div class="unit">
+            <span class="value" id="minutes">00</span>
+            <span class="label">Minutter</span>
+          </div>
+          <div class="separator" aria-hidden="true"><span></span><span></span></div>
+          <div class="unit">
+            <span class="value" id="seconds">00</span>
+            <span class="label">Sekunder</span>
+          </div>
+        </div>
+
+      </main>
+
+      </div>
+    </div>
+  </section>
+
+  <section id="informasjon" class="section">
+    <div class="fade-content">
+      <div class="section-inner">
+        <p class="eyebrow">Informasjon</p>
+        <h2 class="section-title">Mannhullet fyller 110 år</h2>
+        <p class="section-text">
+          En hel uke med feiring venter — for alle årskull. Her er noen av
+          smakebitene fra programmet.
+        </p>
+
+        <ul class="week-list">
+          <li><b>Åpningsfest</b><span class="tag">Sosialt</span></li>
+          <li><b>Faglig program</b><span class="tag">Faglig</span></li>
+          <li><b>Konserter</b><span class="tag">Kultur</span></li>
+          <li><b>Konkurranser &amp; aktiviteter</b><span class="tag">Sosialt</span></li>
+          <li><b>Jubileumsrevy</b><span class="tag">Kultur</span></li>
+          <li><b>Returnerende helg</b><span class="tag">Alumni</span></li>
+          <li><b>Jubileumsgalla</b><span class="tag">Finale</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="kontakt" class="section">
+    <div class="fade-content">
+      <div class="section-inner">
+        <p class="eyebrow">Kontakt oss</p>
+        <h2 class="section-title">Hei! Hyggelig at du stakk innom</h2>
+        <p class="section-text">Finn riktig person under — vi håper å høre fra deg.</p>
+
+        <ul class="contact-list">
+          <li>
+            <div class="role">Generelle henvendelser</div>
+            <a class="mail" href="mailto:jubkom-leder@mannhullet.no">jubkom-leder@mannhullet.no</a>
+          </li>
+          <li>
+            <div class="role">Sponsing &amp; bedrift</div>
+            <a class="mail" href="mailto:jubkom-spons@mannhullet.no">jubkom-spons@mannhullet.no</a>
+          </li>
+          <li>
+            <div class="role">Trøbbel med nettsiden</div>
+            <a class="mail" href="mailto:jubkom-web@mannhullet.no">jubkom-web@mannhullet.no</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+
+  <script>
+    // ============================================
+    //  CHANGE THIS to your event date and time
+    // ============================================
+    const TARGET_DATE = new Date('2027-01-29T00:00:00+01:00');
+
+    const els = {
+      days: document.getElementById('days'),
+      hours: document.getElementById('hours'),
+      minutes: document.getElementById('minutes'),
+      seconds: document.getElementById('seconds'),
+    };
+
+    function pad(n) {
+      return String(n).padStart(2, '0');
+    }
+
+    function tick() {
+      const diff = TARGET_DATE - new Date();
+
+      if (diff <= 0) {
+        els.days.textContent = '00';
+        els.hours.textContent = '00';
+        els.minutes.textContent = '00';
+        els.seconds.textContent = '00';
+        clearInterval(timer);
+        return;
+      }
+
+      const totalSeconds = Math.floor(diff / 1000);
+      els.days.textContent = pad(Math.floor(totalSeconds / 86400));
+      els.hours.textContent = pad(Math.floor((totalSeconds % 86400) / 3600));
+      els.minutes.textContent = pad(Math.floor((totalSeconds % 3600) / 60));
+      els.seconds.textContent = pad(totalSeconds % 60);
+    }
+
+    tick();
+    const timer = setInterval(tick, 1000);
+  </script>
+
+  <script>
+    // Cross-fade each full-screen section's content as it nears the
+    // top/bottom of the viewport, so scrolling between Countdown,
+    // Informasjon and Kontakt oss feels seamless on the shared background.
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const fadeEls = document.querySelectorAll('.fade-content');
+
+    if (!reduceMotion && fadeEls.length) {
+      const SAFE = 0.15;  // fraction of viewport height that stays fully visible
+      const RANGE = 0.55; // fraction of viewport height over which it fades out
+
+      function updateFades() {
+        const vh = window.innerHeight;
+        const viewportCenter = vh / 2;
+        const safe = vh * SAFE;
+        const range = vh * RANGE;
+
+        fadeEls.forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          const elCenter = rect.top + rect.height / 2;
+          const dist = Math.abs(elCenter - viewportCenter);
+          let t = (dist - safe) / (range - safe);
+          t = Math.min(Math.max(t, 0), 1);
+          el.style.opacity = String(1 - t);
+        });
+      }
+
+      let ticking = false;
+      function onScroll() {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            updateFades();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', updateFades);
+      updateFades();
+    }
+  </script>
+
+</body>
+</html>
