@@ -7,7 +7,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500&display=optional" rel="stylesheet">
   <link rel="stylesheet" href="background.css">
 
   <style>
@@ -171,9 +171,19 @@
     }
 
     /* ---- Entrance fade, matching the countdown page ---- */
-    .header-logo, .welcome, .people, .bottom-nav, .social-links {
+    .header-logo, .welcome, .people, .social-links {
       opacity: 0;
       animation: fadeUp 0.9s ease forwards;
+    }
+    /* .bottom-nav sits flush against body's bottom edge with zero slack
+       (body is exactly 100dvh, split between .wrap flex:1 and this flex:none).
+       fadeUp's translateY(18px) start would push it 18px past that edge —
+       transforms count toward a scroll container's overflow region even
+       though they don't affect layout — which briefly made overflow-y:auto
+       show a scrollbar during the animation. Fade opacity only here. */
+    .bottom-nav {
+      opacity: 0;
+      animation: fadeIn 0.9s ease forwards;
     }
     .header-logo { animation-delay: 0.1s; }
     .social-links { animation-delay: 0.1s; }
@@ -184,6 +194,10 @@
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(18px); }
       to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
     }
 
     @media (prefers-reduced-motion: reduce) {

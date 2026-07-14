@@ -20,6 +20,10 @@ body {
     var(--bg);
   color: var(--ink);
   font-family: 'Inter', sans-serif;
+  /* Reserves the scrollbar's track up front on pages that can scroll, so a
+     scrollbar toggling on/off (e.g. from a brief content reflow) can't shove
+     the page content sideways by the scrollbar's width. */
+  scrollbar-gutter: stable;
 }
 
 /* ---- Giant watermark letters behind everything ---- */
