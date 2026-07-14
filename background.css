@@ -1,0 +1,69 @@
+:root {
+  --bg: #050b14;
+  --ink: #eef3fa;
+  --accent: #5b82c4;
+  --accent-dim: #3d5a8a;
+  --watermark: #1e2f4d;
+  --glow: rgba(91, 130, 196, 0.16);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  /* Soft overhead light bloom (uses the previously-unused --glow token) that lifts
+     luminance where content sits, fading to the original --bg at the edges — a
+     lighting cue rather than a flat brightness increase. */
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 45%, var(--glow), transparent 70%),
+    var(--bg);
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+}
+
+/* ---- Giant watermark letters behind everything ---- */
+.watermark {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  place-content: center;
+  font-family: 'Playfair Display', serif;
+  font-weight: 800;
+  font-size: clamp(10rem, 40vw, 30rem);
+  letter-spacing: 0.12em;
+  /* Crisp core: solid fill, no shadow/blur of its own, so the glyphs stay sharp. */
+  color: var(--watermark);
+  user-select: none;
+  pointer-events: none;
+  line-height: 1;
+  z-index: 0;
+}
+
+/* Both layers occupy the same grid cell so they sit exactly on top of one another. */
+.watermark span { grid-area: 1 / 1; margin-right: -0.12em; }
+
+/* Glow layer: a stroke-only (unfilled) duplicate of the same text, blurred.
+   A text-shadow/drop-shadow blurs the glyphs' *filled* silhouette, and since that
+   fill already has the letters' internal counters and gaps cut out of it as
+   transparent, a wide blur just diffuses color straight across those gaps — that's
+   what was reading as "glow inside the letters". Stroking only the outline first
+   means there is no interior fill for the blur to bleed from, so the glow can only
+   ever bloom outward from the contour, never flood the inside.
+   `content` duplicates the watermark's static "NTH" text so this stays CSS-only,
+   like the rest of this shared file — if the watermark text ever changes, update it
+   here too. */
+.watermark::before {
+  content: "NTH";
+  grid-area: 1 / 1;
+  margin-right: -0.12em;
+  color: transparent;
+  -webkit-text-stroke: 0.006em rgba(91, 130, 196, 0.45);
+  filter: blur(0.014em);
+  z-index: -1;
+}
+
+@media (max-width: 600px) {
+  .watermark { font-size: clamp(6.5rem, 38vw, 14rem); }
+}

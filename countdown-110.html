@@ -9,25 +9,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="background.css">
 
   <style>
-    :root {
-      --bg: #050b14;
-      --ink: #eef3fa;
-      --accent: #5b82c4;
-      --accent-dim: #3d5a8a;
-      --watermark: #1e2f4d;
-      --glow: rgba(91, 130, 196, 0.16);
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    html, body { height: 100%; }
-
     body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: 'Inter', sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -35,30 +20,6 @@
       overflow-y: auto;
       position: relative;
     }
-
-    /* ---- Giant watermark letters behind everything ---- */
-    .watermark {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Playfair Display', serif;
-      font-weight: 800;
-      font-size: clamp(10rem, 40vw, 30rem);
-      letter-spacing: 0.12em;
-      color: var(--bg);
-      text-shadow:
-        0 0 50px rgba(91, 130, 196, 0.13),
-        0 0 120px rgba(91, 130, 196, 0.06);
-      user-select: none;
-      pointer-events: none;
-      line-height: 1;
-      z-index: 0;
-    }
-
-    .watermark span { margin-right: -0.12em; }
-
 
     /* ---- Main content ---- */
     .content {
@@ -149,7 +110,14 @@
        + small gap */
     .footer {
       position: absolute;
-      top: calc(50% + clamp(5rem, 20vw, 15rem) + 1.5rem);
+      /* min() keeps the footer pinned just below the watermark on tall viewports,
+         but stops it drifting down into the fixed bottom-links bar on short/wide
+         ones — 8.5rem reserves enough room for both the bottom-links bar and the
+         footer's own height, with a little breathing margin between them. */
+      top: min(
+        calc(50% + clamp(5rem, 20vw, 15rem) + 1.5rem),
+        calc(100% - 8.5rem)
+      );
       left: 0;
       right: 0;
       text-align: center;
@@ -171,10 +139,6 @@
       letter-spacing: 0.45em;
       text-transform: uppercase;
       color: var(--accent);
-    }
-
-    .footer .dates {
-      margin-bottom: 0.6rem;
     }
 
     /* ---- Bottom links (Info / Kontakt oss) ---- */
@@ -250,10 +214,12 @@
       .separator { gap: 0.6rem; }
       h1 { margin-bottom: 3rem; }
       .countdown { margin-bottom: 3rem; }
-      .watermark { font-size: clamp(6.5rem, 38vw, 14rem); }
       .footer {
         padding-bottom: 2.5rem;
-        top: calc(50% + clamp(6.5rem, 38vw, 14rem) / 2 + 1.5rem);
+        top: min(
+          calc(50% + clamp(6.5rem, 38vw, 14rem) / 2 + 1.5rem),
+          calc(100% - 11rem)
+        );
       }
     }
 
@@ -363,11 +329,10 @@
   <div class="footer">
     <hr>
     <p class="dates">29. januar – 6. februar</p>
-    <p>Hold av datoen</p>
   </div>
 
   <div class="bottom-links">
-    <a href="om-jubileet.html">Om jubileet</a>
+    <a href="om-jubileet.html">Les mer</a>
     <a href="kontakt.html">Kontakt oss</a>
   </div>
 

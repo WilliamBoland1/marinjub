@@ -8,28 +8,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="background.css">
 
   <style>
     :root {
-      --bg: #050b14;
       --bg-soft: #091125;
-      --ink: #eef3fa;
       --muted: #93a6c2;
-      --accent: #5b82c4;
-      --accent-dim: #3d5a8a;
       --line: rgba(147, 166, 194, 0.18);
-      --watermark: #1e2f4d;
-      --glow: rgba(91, 130, 196, 0.16);
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    html, body { height: 100%; }
-
     body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: 'Inter', sans-serif;
       line-height: 1.5;
       position: relative;
       overflow-x: hidden;
@@ -38,28 +26,6 @@
       display: flex;
       flex-direction: column;
     }
-
-    .watermark {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Playfair Display', serif;
-      font-weight: 800;
-      font-size: clamp(10rem, 40vw, 30rem);
-      letter-spacing: 0.12em;
-      color: var(--bg);
-      text-shadow:
-        0 0 50px rgba(91, 130, 196, 0.13),
-        0 0 120px rgba(91, 130, 196, 0.06);
-      user-select: none;
-      pointer-events: none;
-      line-height: 1;
-      z-index: 0;
-    }
-
-    .watermark span { margin-right: -0.12em; }
 
     .wrap {
       position: relative;
@@ -151,7 +117,6 @@
     }
 
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
-    @media (max-width: 600px) { .watermark { font-size: clamp(6.5rem, 38vw, 14rem); } }
 
     /* ---- Landscape phones: shrink vertical rhythm so the letter fits without
        relying on the scroll fallback (covers phone landscape heights ~320-430px) ---- */
