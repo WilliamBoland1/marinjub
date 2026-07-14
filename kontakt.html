@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kontakt oss — Marin Teknikk 110 år</title>
+  <title>Kontakt oss — Mannhullet 110 år</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -38,18 +38,6 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-    }
-
-    /* ---- Corner brand mark: fixed to the true viewport corner, not the centered column ---- */
-    .header-logo {
-      position: fixed;
-      top: clamp(0.9rem, 3vh, 1.75rem);
-      left: clamp(0.9rem, 3vw, 1.75rem);
-      display: block;
-      width: clamp(38px, 5vw, 54px);
-      height: auto;
-      z-index: 3;
-      filter: drop-shadow(0 0 30px rgba(91, 130, 196, 0.18));
     }
 
     .welcome { text-align: center; margin-bottom: clamp(0.8rem, 2.5vh, 1.5rem); }
@@ -101,54 +89,49 @@
     }
     .person .role {
       font-size: clamp(0.56rem, 1.3vh, 0.68rem); letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: clamp(0.3rem, 1vh, 0.5rem);
+      /* Lighter than --accent: against the --bg-soft card (not the page background),
+         --accent itself only clears WCAG AA by a hair (~4.9:1) — this gives headroom. */
+      color: #7fa0d9; margin-bottom: clamp(0.3rem, 1vh, 0.5rem);
     }
     .person h3 {
       font-family: 'Playfair Display', serif;
       font-weight: 700; font-size: clamp(0.95rem, 2.4vh, 1.3rem); margin-bottom: clamp(0.4rem, 1.2vh, 0.9rem);
     }
     .person a.mail {
+      position: relative;
       display: inline-block;
       color: var(--ink); text-decoration: none; font-size: clamp(0.68rem, 1.6vh, 0.9rem);
       border-bottom: 1px solid var(--accent-dim); padding-bottom: 2px;
       transition: border-color 0.2s ease; word-break: break-word;
     }
+    /* Invisible expanded hit area, so the tap target reaches >=44x44px without
+       moving the visible underline away from the text. */
+    .person a.mail::before {
+      content: "";
+      position: absolute;
+      inset: -15px;
+    }
     .person a.mail:hover { border-color: var(--accent); }
 
     .bottom-nav {
       position: relative; z-index: 2; flex: none;
-      padding: clamp(0.6rem, 2vh, 1.4rem) 1rem;
+      /* Matches .bottom-links' padding on countdown-110.html, so the link sits
+         at the same height above the viewport bottom on every page. */
+      padding: 1.6rem 1rem calc(2.2rem + env(safe-area-inset-bottom));
       display: flex; justify-content: center; gap: 2rem;
     }
     .bottom-nav a {
-      color: rgba(147, 166, 194, 0.55);
+      display: inline-block;
+      padding: 1rem 0.65rem;
+      margin: -1rem -0.65rem;
+      color: rgba(147, 166, 194, 0.8);
       text-decoration: underline;
       text-underline-offset: 4px;
-      font-size: 0.82rem; letter-spacing: 0.14em; text-transform: uppercase;
+      font-size: 0.82rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
       transition: color 0.2s ease;
     }
-    .bottom-nav a:hover { color: var(--ink); }
-
-    /* ---- Corner social links: mirrors the logo corner on the opposite side ---- */
-    .social-links {
-      position: fixed;
-      top: clamp(0.9rem, 3vh, 1.75rem);
-      right: clamp(0.9rem, 3vw, 1.75rem);
-      z-index: 3;
-      display: flex;
-      gap: clamp(0.7rem, 2vw, 1.1rem);
-    }
-    .social-links a {
-      display: flex;
-      color: rgba(147, 166, 194, 0.55);
-      transition: color 0.2s ease;
-    }
-    .social-links a:hover,
-    .social-links a:focus-visible { color: var(--ink); }
-    .social-links svg {
-      width: clamp(18px, 2.4vw, 22px);
-      height: clamp(18px, 2.4vw, 22px);
-    }
+    .bottom-nav a:hover,
+    .bottom-nav a:focus-visible { color: var(--ink); }
 
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
     @media (max-width: 480px) {
@@ -184,7 +167,7 @@
       .person .role { margin-bottom: 0.2rem; }
       .person h3 { font-size: 0.85rem; margin-bottom: 0.3rem; }
       .person a.mail { font-size: 0.68rem; }
-      .bottom-nav { padding: 0.5rem 1rem; }
+      .bottom-nav { padding: 0.6rem 1rem calc(0.8rem + env(safe-area-inset-bottom)); }
     }
 
     /* ---- Entrance fade, matching the countdown page ---- */
@@ -227,7 +210,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
     </a>
     <a href="https://www.strava.com/athletes/134381213" target="_blank" rel="noopener" aria-label="Strava">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 2 11 13 14.5 13 10.5 22 17 10 13.5 10 17 2"></polyline></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.172"></path></svg>
     </a>
   </div>
 
@@ -251,7 +234,7 @@
       <div class="person">
         <div class="avatar" style="background-image:url('static/bilde (2).jpg')" aria-hidden="true"></div>
         <div class="role">Sponsing &amp; bedrift</div>
-        <h3>Mille "Mille" Linna </h3>
+        <h3>Mille "Mille" Linna</h3>
         <a class="mail" href="mailto:jubkom-spons@mannhullet.no">jubkom-spons@mannhullet.no</a>
       </div>
 

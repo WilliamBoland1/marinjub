@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Marin Teknikk 110-år</title>
+  <title>Mannhullet 110-år</title>
 
   <!-- Fonts: high-contrast serif for display, clean sans for labels -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -141,7 +141,7 @@
       color: var(--accent);
     }
 
-    /* ---- Bottom links (Info / Kontakt oss) ---- */
+    /* ---- Bottom links (Les mer / Kontakt oss) ---- */
     .bottom-links {
       position: fixed;
       left: 0;
@@ -162,7 +162,12 @@
     }
 
     .bottom-links a {
-      color: rgba(147, 166, 194, 0.55);
+      display: inline-block;
+      padding: 1rem 0.65rem;
+      margin: -1rem -0.65rem;
+      color: rgba(147, 166, 194, 0.8);
+      font-weight: 600;
+      letter-spacing: 0.16em;
       text-decoration: underline;
       text-underline-offset: 4px;
       transition: color 0.2s ease;
@@ -173,27 +178,13 @@
       color: var(--ink);
     }
 
-    /* ---- Corner social links ---- */
+    /* ---- Corner header (logo + social links): shared position/sizing/color
+       live in background.css; only this page's entrance-animation timing
+       stays local, matching the rest of this file's choreography. ---- */
+    .header-logo,
     .social-links {
-      position: fixed;
-      top: clamp(0.9rem, 3vh, 1.75rem);
-      right: clamp(0.9rem, 3vw, 1.75rem);
-      z-index: 3;
-      display: flex;
-      gap: clamp(0.7rem, 2vw, 1.1rem);
       opacity: 0;
       animation: fadeUp 0.9s ease 0.2s forwards;
-    }
-    .social-links a {
-      display: flex;
-      color: rgba(147, 166, 194, 0.55);
-      transition: color 0.2s ease;
-    }
-    .social-links a:hover,
-    .social-links a:focus-visible { color: var(--ink); }
-    .social-links svg {
-      width: clamp(18px, 2.4vw, 22px);
-      height: clamp(18px, 2.4vw, 22px);
     }
 
     @keyframes fadeUp {
@@ -202,7 +193,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-      .eyebrow, h1, .countdown, .footer, .bottom-links, .social-links {
+      .eyebrow, h1, .countdown, .footer, .bottom-links, .header-logo, .social-links {
         animation: none;
         opacity: 1;
       }
@@ -221,6 +212,12 @@
           calc(100% - 11rem)
         );
       }
+      /* At the base size this line needs ~400px — wider than any phone in
+         portrait — and would silently wrap to two lines (body clips
+         horizontal overflow, and a taller footer risks the bottom-links
+         bar again). Shrinking it here keeps it on one line down to the
+         narrowest phones. */
+      .footer p { font-size: 0.62rem; letter-spacing: 0.25em; }
     }
 
     /* ---- Small phones: prevent the countdown row from overflowing ---- */
@@ -232,6 +229,19 @@
       .unit .label { font-size: 0.6rem; letter-spacing: 0.2em; margin-top: 0.6rem; }
       .separator { gap: 0.5rem; padding-top: 0.7rem; }
       .bottom-links { font-size: 0.62rem; letter-spacing: 0.25em; gap: 1.2rem; }
+    }
+
+    /* ---- Narrowest phones (e.g. iPhone SE, ~320px): with 190+ days still on
+       the clock, DAGER renders 3 digits, and MINUTTER/SEKUNDER are the two
+       longest labels — verified against real font metrics that together they
+       can outgrow screens this narrow and get clipped (body hides overflow-x).
+       Shrink just enough to guarantee they fit down to ~280px wide. ---- */
+    @media (max-width: 360px) {
+      .content { padding-left: 0.75rem; padding-right: 0.75rem; }
+      .countdown { gap: 0.3rem; }
+      .unit { min-width: 2rem; }
+      .unit .value { font-size: 1.7rem; }
+      .unit .label { font-size: 0.5rem; letter-spacing: 0.14em; }
     }
 
     /* ---- Landscape phones: shrink vertical rhythm so countdown + footer + bottom-links
@@ -287,6 +297,8 @@
 
   <div class="watermark" aria-hidden="true"><span>NTH</span></div>
 
+  <img class="header-logo" src="logo.png" alt="Mannhullet / NTH 110 år — 1917–2027">
+
   <div class="social-links">
     <a href="https://www.instagram.com/jub110_mannhullet/" target="_blank" rel="noopener" aria-label="Instagram">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
@@ -295,12 +307,12 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
     </a>
     <a href="https://www.strava.com/athletes/134381213" target="_blank" rel="noopener" aria-label="Strava">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="7 2 11 13 14.5 13 10.5 22 17 10 13.5 10 17 2"></polyline></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.172"></path></svg>
     </a>
   </div>
 
   <main class="content">
-    <p class="eyebrow">Marin Teknikk 110-år</p>
+    <p class="eyebrow">Mannhullet 110-år</p>
 
     <div class="countdown" role="timer" aria-live="polite">
       <div class="unit">
@@ -328,7 +340,7 @@
 
   <div class="footer">
     <hr>
-    <p class="dates">29. januar – 6. februar</p>
+    <p class="dates">29. januar – 6. februar · 2027</p>
   </div>
 
   <div class="bottom-links">
